@@ -31,27 +31,27 @@ class Goods extends Admin_Controller {
         $options = $this->input->post();
         
         @$this->session->options_goods = $options;
-        if($this->session->options_goods){
+        if ($this->session->options_goods) {
 
-            if(isset($this->session->options_goods['search_val']) && !empty($this->session->options_goods['search_val'])){
+            if (isset($this->session->options_goods['search_val']) && !empty($this->session->options_goods['search_val'])) {
                 $tmp_options['search_key'] = $this->session->options_goods['search_key'];
                 $tmp_options['search'] = $this->session->options_goods['search_val'];
-            }else{
+            } else {
                 $tmp_options['search']=null;
             }
-            if(isset($this->session->options_goods['vendor_id']) && !empty($this->session->options_goods['vendor_id'])){
+            if (isset($this->session->options_goods['vendor_id']) && !empty($this->session->options_goods['vendor_id'])) {
                 $tmp_options['vendor_id'] = $this->session->options_goods['vendor_id'];
-            }else{
+            } else {
                 $tmp_options['vendor_id']=null;
             }
             // 商品状态
-            if(isset($this->session->options_goods['status_n']) && isset($this->session->options_goods['status_v']) && !empty($this->session->options_goods['status_n']) && ($this->session->options_goods['status_v']!='')){
+            if (isset($this->session->options_goods['status_n']) && isset($this->session->options_goods['status_v']) && !empty($this->session->options_goods['status_n']) && ($this->session->options_goods['status_v']!='')) {
                 $tmp_options['status'] = "g.".$this->session->options_goods['status_n']."='".$this->session->options_goods['status_v']."'";
-            }else{
+            } else {
                 $tmp_options['status']=null;
             }
             
-        }else{
+        } else {
             $tmp_options=null;
         }
         $result = $this->goods_model->selectGoods($tmp_options);
@@ -60,17 +60,15 @@ class Goods extends Admin_Controller {
         $offset = $result['offset'];
         
         $this->load->library('pagination');
-        $config = $this->myPagination(base_url('admin.php').'/goods/ajaxGoodsList',$count);
+        $config = $this->myPagination(base_url().'admin/goods/ajaxGoodsList',$count);
         $this->pagination->initialize($config);
         $page = $this->pagination->create_links();
         foreach ($list as $k => &$v) {
-            if(empty($v['goods_main'])) continue;
+
+            if ($v['goods_main'] == null) continue;
             $a = explode('|', $v['goods_main']);
             $v['thumb_pic'] = current($a);
             $v['cate_one_name'] = $this->goods_model->getCateOneName($v['cate_id_one']);
-            $stock = $this->goods_model->getGoodsStock($v['id']);
-            
-            $v['total_stock'] = $stock?$stock:0;
         }
         $last_page = ceil($count / $this->limitRows);
        
@@ -101,27 +99,17 @@ class Goods extends Admin_Controller {
     public function add(){
         // 分类
         $catelist = $this->goods_model->selectCate(1);
-        if(!empty($catelist)){
+        if (!empty($catelist)) {
             foreach ($catelist as $k => &$v) {
                 $v['child'] = $this->goods_model->selectCate(2,$v['id']);
             }
         }
-        // 规格
-        $speclist = $this->goods_model->selectSpec();
-        $spec_select = '';
-        if(!empty($speclist)){
-            $spec_select = '<select class="form-control m-b" name="spec_name[]" required><option value="">--请选择--</option>';
-            foreach ($speclist as $k2 => $v2) {
-                $spec_select .= '<option value="'.$v2['spec_name'].'">'.$v2['spec_name'].'</option>';
-            }
-            $spec_select .= '</select>';
-        }
+        
         // 供应商
         $vendorlist = $this->goods_model->selectVendor();
 
         $this->session->tmpbigpic = [];
         $this->session->tmpsmallpic = [];
-        $this->assign('spec_select',$spec_select);
         $this->assign('vendorlist',$vendorlist);
         $this->assign('catelist',$catelist);
         $this->assign('title','商品录入');
@@ -132,9 +120,9 @@ class Goods extends Admin_Controller {
      * 添加
      * @author lyne
      */
-    public function doAddGoods(){
+    public function doAddGoods() {
         $data = $this->input->post();
-        if(!empty($data['cate_id'])){
+        if ($data['cate_id'] != null) {
             $tmp_cateid = explode('-',$data['cate_id']);
             $data['cate_id_one'] = $tmp_cateid[0];
             $data['cate_id_two'] = $tmp_cateid[1];
@@ -149,11 +137,15 @@ class Goods extends Admin_Controller {
         $data['stock'] = $data['stock'];
         $data['is_up_time'] = time();
         $data['add_time'] = time();
-var_dump($data);exit;
         
-        $goods_id = $this->goods_model->insertGoods($data);
-        if($goods_id) $this->ajaxReturn(['retcode'=>1,'msg'=>'提交成功','data'=>[]]);
-        else $this->ajaxReturn(['retcode'=>2001,'msg'=>'存储过程失败','data'=>[]]);
+        $result = $this->goods_model->insertGoods($data);
+        if ($result) {
+
+            $this->ajaxReturn(['retcode'=>1,'msg'=>'提交成功','data'=>[]]);
+        } else {
+
+            $this->ajaxReturn(['retcode'=>2001,'msg'=>'存储过程失败','data'=>[]]);
+        }
     }
 
     /**
@@ -170,16 +162,27 @@ var_dump($data);exit;
         $big_pic = $this->session->tmpbigpic;
         $small_pic = $this->session->tmpsmallpic;
         foreach ($file as $key => $v) {
+
             $tmp_pic_ext = pathinfo($_FILES[$key]['name'], PATHINFO_EXTENSION);
            
             $file_name = 'T'.date("Ymd").'X'.mt_rand(1001,9999).'.'.$tmp_pic_ext;
-            if($this->make_dir($file_path2)) $result = $this->doUpload($key,$file_path2,$file_name);
+            
+            if ($this->make_dir($file_path2)) {
 
-            if(isset($result['error']) && !empty($result['error'])){
+                $result = $this->doUpload($key,$file_path2,$file_name);
+            }
+
+            if (isset($result['error']) && !empty($result['error'])) {
+
                 $this->ajaxReturn(['success'=>false,'msg'=>$result['error']]);
             }
+
             $big_pic[] = $file_path1.$file_name;
-            if($this->make_dir($file_small_path2)) $this->makeThumb($file_name, $file_path2, $file_small_path2, 211, 211);
+
+            if ($this->make_dir($file_small_path2)) {
+                
+                $this->makeThumb($file_name, $file_path2, $file_small_path2, 211, 211);
+            }
             $small_pic[] = $file_path1.$file_name; 
         }
         $this->session->tmpbigpic = $big_pic;
@@ -203,7 +206,7 @@ var_dump($data);exit;
         if(empty($big_pic_data)) $this->ajaxReturn(['success'=>true,'data'=>null]);
         foreach ($big_pic_data as $k => &$v) {
             $pic_path = $v;
-            if($pic_path==$file_path){
+            if ($pic_path==$file_path) {
                 @unlink(WWWROOTPATH.PIC_O_PATH.$v);
                 unset($big_pic_data[$k]);
                 @unlink(WWWROOTPATH.PIC_T_PATH.PIC211X211.'/'.$v);
@@ -225,7 +228,6 @@ var_dump($data);exit;
     public function ajaxUpdateIsUp(){
         $goods_id = $this->input->post('id',true); 
         $is_up = $this->input->post('is_up',true);
-        $this->load->model('goods_model');
         $up_data['is_up'] = $is_up=="true" ? 1 : 0;
         $up_data['is_up_time'] = time();
         $res = $this->goods_model->updateGoods($goods_id,$up_data);
@@ -240,12 +242,11 @@ var_dump($data);exit;
     public function getGoodsDetail(){
         $g_id = $this->input->get('id',true);
         $details = $this->goods_model->selectGoodsDetails($g_id);
+        if (!$details) exit('出错！数据异常');
         $details['cate_one_name'] = $this->goods_model->getCateOneName($details['cate_id_one']);
-        $stocklist = $this->goods_model->getGoodsStockList($details['id']);
-        $details['stock_list'] = $stocklist;
+        
         // echo "<pre>";
         // var_dump($details);
-        if(!$details) exit('出错！数据异常');
         $details['pic'] = explode('|', $details['goods_main']);
         $this->assign('details',$details);
         $this->assign('title','商品详情');
@@ -257,7 +258,7 @@ var_dump($data);exit;
      * @author lyne
      */
     public function goodsEdit(){
-        $id = $this->uri->segment(3,true);
+        $id = $this->uri->segment(4,false);
         $details = $this->goods_model->selectGoodsDetails($id);
         $this->session->tmpbigpic = explode('|',$details['goods_main']);
         $this->session->tmpsmallpic = explode('|',$details['goods_main']);
@@ -270,32 +271,10 @@ var_dump($data);exit;
                 $v['child'] = $this->goods_model->selectCate(2,$v['id']);
             }
         }
-        // 所有规格
-        $speclist = $this->goods_model->selectSpec();
-        $goods_stock_list = $this->goods_model->getGoodsStockList($details['id']);
         
-        $spec_select = '';
-        // echo "<pre>";
-        // var_dump($speclist);exit;
-        foreach ($goods_stock_list as $k2 => &$v2) {
-            $spec_select = '<select tmp-gsid="'.$v2['gs_id'].'" class="form-control m-b" name="spec_name[]" required><option value="">--请选择--</option>';
-            foreach ($speclist as $k3 => $v3) {
-                if($v3['spec_name']==$v2['spec_name']){
-                    $spec_select .= '<option  value="'.$v2['gs_id'].'|'.$v3['spec_name'].'" selected="true">'.$v3['spec_name'].'</option>';
-                }else{
-                    $spec_select .= '<option value="'.'0|'.$v3['spec_name'].'">'.$v3['spec_name'].'</option>';
-                }
-            }
-            $spec_select .= '</select>';
-
-            $v2['spec_select'] = $spec_select;
-        }
-
         // 供应商
         $vendorlist = $this->goods_model->selectVendor();
 
-        $this->assign('spec_select',$spec_select);
-        $this->assign('goods_stock_list',$goods_stock_list);
         $this->assign('catelist',$catelist);
         $this->assign('details',$details);
         $this->assign('vendorlist',$vendorlist);
@@ -323,47 +302,8 @@ var_dump($data);exit;
         unset($data['g_small_pic']);
         unset($data['g_big_pic']);
         unset($data['cate_id']);
-        $gw_stock_update = [];
-        $gw_stock_add = [];
-        $tmp_minprice = 10000000000;
-        foreach ($data['spec_name'] as $k => $v) {
-            if($tmp_minprice>$data['price'][$k]){
-                $tmp_minprice = $data['price'][$k];
-            }
-            $tmp = explode('|',$v);
-            $gs_id = $tmp[0];
-            $spec_name = $tmp[1];
-            if($gs_id){
-                $gw_stock_update[$k]['id'] = $gs_id;
-                $gw_stock_update[$k]['spec_name'] = $spec_name;
-                $gw_stock_update[$k]['price'] = $data['price'][$k];
-                $gw_stock_update[$k]['stock'] = $data['stock'][$k];
-                $gw_stock_update[$k]['min_buynum'] = $data['min_buynum'][$k];
-                $gw_stock_update[$k]['update_time'] = date('Y-m-d H:i:s',time());
-            }else{
-                $gw_stock_add[$k]['goods_id'] = $id;
-                $gw_stock_add[$k]['spec_name'] = $spec_name;
-                $gw_stock_add[$k]['price'] = $data['price'][$k];
-                $gw_stock_add[$k]['stock'] = $data['stock'][$k];
-                $gw_stock_add[$k]['min_buynum'] = $data['min_buynum'][$k];
-                $gw_stock_add[$k]['update_time'] = date('Y-m-d H:i:s',time());
-            }
-           
-        }
 
-        $data['min_price'] = $tmp_minprice;
-
-        unset($data['spec_name']);
-        unset($data['price']);
-        unset($data['stock']);
-        unset($data['min_buynum']);
-      //   echo "<pre>add";
-      //   var_dump($gw_stock_add);
-      //   echo "<pre>up";
-      //   var_dump($gw_stock_update);
-      // echo "<pre>";
-      // var_dump($data);exit;
-        $result = $this->goods_model->updateGoodsForEdit($id,$data,$gw_stock_update,$gw_stock_add);
+        $result = $this->goods_model->updateGoods($id,$data);
         if($result) $this->ajaxReturn(['retcode'=>1,'msg'=>'提交成功','data'=>[]]);
         else $this->ajaxReturn(['retcode'=>2001,'msg'=>'提交失败','data'=>[]]);
     }
@@ -443,19 +383,6 @@ var_dump($data);exit;
     }
 
 
-    /**
-     * ajaxDelSpec
-     * @author lyne
-     */
-    public function ajaxDelSpec(){
-        $spec_str = $this->input->post('spec_str',true);
-        $tmp = explode('|',$spec_str);
-        $gw_stock_id = $tmp[0];
-        $result = $this->goods_model->deleteStockById($gw_stock_id);
-        
-        if($result) $this->ajaxReturn(['retcode'=>1,'msg'=>'提交成功','data'=>[]]);
-        else $this->ajaxReturn(['retcode'=>2001,'msg'=>'提交失败','data'=>[]]);
-    }
 
 
    /**
@@ -463,6 +390,7 @@ var_dump($data);exit;
      * @author sam
      */
     public function exportGoodsExcel(){
+        
         $this->load->library('CI_Excel');
         $options = $this->input->post();
         @$this->session->options_exportgoods = $options;
@@ -494,16 +422,13 @@ var_dump($data);exit;
         if(!empty($list)){
             foreach ($list as $k => &$v) {
                 $v['cate_one_name'] = $this->goods_model->getCateOneName($v['cate_id_one']);
-                $stock = $this->goods_model->getGoodsStock($v['id']);
-                $v['total_stock'] = $stock?$stock:0;
             }
             unset($v);
             $processedList = array();
             foreach ($list as $k => $v) {
                 $processedList[$k]['key'] = $k+1;
-                $processedList[$k]['goods_code'] = "\t".$v['goods_code']."\t";
+                $processedList[$k]['goods_code'] = $v['goods_code'];
                 $processedList[$k]['goods_name'] = $v['goods_name'];
-                $processedList[$k]['spec_name'] = $v['spec_name'];
                 $processedList[$k]['vendor_name'] = $v['vendor_name'];
                 $processedList[$k]['cate'] = $v['cate_one_name'].'/'.$v['cate_two_name'];
                 $processedList[$k]['price'] = $v['price'];
@@ -515,7 +440,6 @@ var_dump($data);exit;
             $headerTitle[0][] = '序号';
             $headerTitle[0][] = '商品编码';
             $headerTitle[0][] = '商品名称';
-            $headerTitle[0][] = '商品规格';
             $headerTitle[0][] = '所属供应商';
             $headerTitle[0][] = '所属分类';
             $headerTitle[0][] = '供货价';
@@ -526,7 +450,7 @@ var_dump($data);exit;
             $list = array_merge($headerTitle,$processedList);
             // echo "<pre>";
             // var_dump($list);exit;
-            $objPHPExcel = $this->writerExcel2($this->ci_excel,0,'商品数据',$list);
+            $objPHPExcel = $this->writerExcel($this->ci_excel,0,'商品数据',$list);
             $filename = "goods-data".date('Y-m');
 
             header('Content-Type: application/vnd.ms-excel');
@@ -544,7 +468,6 @@ var_dump($data);exit;
             $fileurl = TF_EXPRESS_URL.$filename.".xls";
             $objWriter->save($filepath);
             $this->ajaxReturn(['success'=>true,'data'=>$fileurl]);
-            exit;
             exit;
         }else{
             // $this->jumpNoticePage('对不起，未找到相关数据',site_url('/order/index'));

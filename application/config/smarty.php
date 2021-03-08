@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 $config['theme']        = 'default';
 $config['cache_lifetime'] = 60;
-$config['caching'] = true;
+$config['caching'] = false;
 // 模板文件存放路径
 if(strpos($_SERVER['REQUEST_URI'],'admin') !==false)
 {

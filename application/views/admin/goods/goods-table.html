@@ -23,9 +23,9 @@
             <td class="goods_name">{{$v['goods_name']}}</td>
             <td>{{$v['vendor_name']}}</td>
             <td><a href="javascript:;">{{$v['cate_one_name']}}</a> / <a href="javascript:;">{{$v['cate_two_name']}}</a></td>
-            <td>{{$v['min_price']}}</td>
-            <td>{{$v['total_stock']}}</td>
-            <td>{{$v['total_sales']}}</td>
+            <td>{{$v['price']}} 元</td>
+            <td>{{$v['stock']}} 件</td>
+            <td>{{$v['sales']}}</td>
             <td><input type="checkbox" class="js-switch" {{if $v['is_up']=='1'}}checked{{/if}} goodsid="{{$v['id']}}" /></td>
             <td>
                 <a class="btn btn-xs btn-outline btn-success goods-details-btn" href="javascript:;">查询</a>

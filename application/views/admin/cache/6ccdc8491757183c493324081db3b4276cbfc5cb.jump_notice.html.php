@@ -1,11 +1,11 @@
 <?php
-/* Smarty version 3.1.29, created on 2021-03-08 14:40:43
+/* Smarty version 3.1.29, created on 2021-03-08 15:00:02
   from "/System/Volumes/Data/home/wwwroot/Documents/BONLI/gw2_platform/application/views/admin/public/jump_notice.html" */
 
 if ($_smarty_tpl->smarty->ext->_validateCompiled->decodeProperties($_smarty_tpl, array (
   'has_nocache_code' => false,
   'version' => '3.1.29',
-  'unifunc' => 'content_6045c6ebdd20e4_84356149',
+  'unifunc' => 'content_6045cb72370a02_19852283',
   'file_dependency' => 
   array (
     '6ccdc8491757183c493324081db3b4276cbfc5cb' => 
@@ -17,7 +17,7 @@ if ($_smarty_tpl->smarty->ext->_validateCompiled->decodeProperties($_smarty_tpl,
   ),
   'cache_lifetime' => 60,
 ),true)) {
-function content_6045c6ebdd20e4_84356149 ($_smarty_tpl) {
+function content_6045cb72370a02_19852283 ($_smarty_tpl) {
 ?>
 <!DOCTYPE html>
 <html>

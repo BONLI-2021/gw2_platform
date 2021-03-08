@@ -9,6 +9,47 @@ class Goods_model extends MY_Model {
 		parent::__construct();
 	}
 
+	/**
+	 * insertGoods
+	 * @author lyne
+	 */
+	public function insertGoods($data){
+		if(!$data) return false;
+		try {
+			
+			$this->db->trans_begin();
+			$sql1 = $this->db->set($data)->get_compiled_insert('gw_goods');
+			$this->db->query($sql1);
+			$goods_id = $this->db->insert_id();
+			if ($goods_id == false) {
+				throw new Exception("存储过程失败1", 1);
+			}
+
+			$code = sprintf("%05d",$goods_id);
+			$goods_code = 'J'.mt_rand(0,9).substr($code,0,1).substr($code,4,1).substr($code,2,2).substr($code,1,1);
+			$sql2 = $this->db->where('id',$goods_id)->set('goods_code',$goods_code)->get_compiled_update('gw_goods');
+			$this->db->query($sql2);
+			$res1 = $this->db->affected_rows();
+
+			if ($res1 == false) {
+				throw new Exception("存储过程失败2", 1);
+			}
+
+			if ($this->db->trans_status() === FALSE) {
+				
+				throw new Exception("事务回滚trans_status:false", 1);
+			    
+			} else {
+			    $this->db->trans_commit();
+			    return true;
+			}
+
+		} catch (Exception $e) {
+			$this->db->trans_rollback();
+			return false;
+		}	
+	}
+
 	
 	/** 
 	 * selectGoods
@@ -31,11 +72,10 @@ class Goods_model extends MY_Model {
 		$count = $this->db->count_all_results();
 		$this->db = $tmpDB;
 		$this->db->order_by('g.add_time desc');
-		$offset = ($this->uri->segment(3,  1) - 1) * $this->limitRows;
+		$offset = ($this->uri->segment(4,  1) - 1) * $this->limitRows;
         $this->db->limit($this->limitRows, $offset);    // 添加limit
 
 		if($this->query = $this->db->get()){
-			// echo $this->db->last_query();
 			$list = $this->getRows();
 			$order['count'] = $count;
 			$order['list'] = $list;
@@ -46,8 +86,8 @@ class Goods_model extends MY_Model {
 	}
 
 	/** 
-	 * selectCate
-	 * 获取所有分类
+	 * selectCate 
+	 * 获取所有分类[通用]
 	 * @author lyne
 	 * @return  array
 	 */  
@@ -63,21 +103,10 @@ class Goods_model extends MY_Model {
 		return false;
 	}
 
-	/**
-	 * selectSpec
-	 * @author  lyne
-	 */
-	public function selectSpec(){
-		$this->db->select('id,spec_name');
-		$this->db->from('gw_spec');
-		if($this->query = $this->db->get()){
-			return $this->getRows();
-		}
-		return false;
-	}
-
+	
 	/**
 	 * selectVendor
+	 * 获取供应商列表[通用]
 	 * @author lyne
 	 */
 	public function selectVendor(){
@@ -91,75 +120,8 @@ class Goods_model extends MY_Model {
 	}
 
 	/**
-	 * insertGoods
-	 * @author lyne
-	 */
-	public function insertGoods($data,$gw_stock){
-		if(!$data || !$gw_stock) return false;
-		$this->db->trans_begin();
-		
-		$sql1 = $this->db->set($data)->get_compiled_insert('gw_goods');
-		$this->db->query($sql1);
-		$goods_id = $this->db->insert_id();
-
-		$code = sprintf("%05d",$goods_id);
-		$goods_code = mt_rand(0,9).substr($code,0,1).substr($code,4,1).substr($code,2,2).substr($code,1,1);
-		$sql2 = $this->db->where('id',$goods_id)->set('goods_code',$goods_code)->get_compiled_update('gw_goods');
-		$this->db->query($sql2);
-		$res1 = $this->db->affected_rows();
-
-		foreach ($gw_stock as $k => &$v) {
-			$v['goods_id'] = $goods_id;
-		}
-		$this->db->insert_batch('gw_stock',$gw_stock);
-		$res2 = $this->db->affected_rows();
-
-		if ($this->db->trans_status() === FALSE || !$goods_id || !$res1 || !$res2)
-		{
-		    $this->db->trans_rollback();
-		    return false;
-		}
-		else
-		{
-		    $this->db->trans_commit();
-		    return true;
-		}		
-	}
-
-
-	/**
-	 * getGoodsStock
-	 * @author lyne
-	 */
-	public function getGoodsStock($goods_id){
-		if(!$goods_id) return false;
-		$this->db->select_sum('stock');
-		$this->db->from('gw_stock');
-		$this->db->where('goods_id',$goods_id);
-		if($query = $this->db->get()){
-			return $query->first_row('array')['stock'];
-		}
-		return false;
-	}
-
-	/**
-	 * getGoodsStockList
-	 * @author  lyne
-	 */
-	public function getGoodsStockList($goods_id){
-		if(!$goods_id) return false;
-		$this->db->select('id as gs_id,spec_name,price,stock,sales,min_buynum');
-		$this->db->from('gw_stock');
-		$this->db->where('goods_id',$goods_id);
-		if($this->query = $this->db->get()){
-			return $this->getRows();
-		}
-		return false;
-	}
-
-
-	/**
 	 * updateGoods
+	 * 更新商品数据[通用]
 	 * @author lyne
 	 */
 	public function updateGoods($id,$data){
@@ -172,9 +134,11 @@ class Goods_model extends MY_Model {
 		return false;
 
 	}
+	
 
 	/**
 	 * getCateOneName
+	 * 获取一级分类名称[通用]
 	 * @author  lyne
 	 */
 	public function getCateOneName($id){
@@ -190,6 +154,7 @@ class Goods_model extends MY_Model {
 
 	/**
 	 * selectGoodsDetails
+	 * 获取商品详情[通用]
 	 * @author lyne
 	 */
 	public function selectGoodsDetails($id){
@@ -205,73 +170,6 @@ class Goods_model extends MY_Model {
 		return false;
 	}
 
-	/**
-	 * updateGoodsForEdit
-	 * @author  lyne
-	 */
-	public function updateGoodsForEdit($goods_id,$goods_data,$gw_stock_update,$gw_stock_add){
-		
-		if(!$goods_id || !$goods_data) return false;
-		try {
-			
-			$this->db->trans_begin();
-			// 更新商品表
-			if(!empty($goods_data)){
-                $goods_data['update_time'] = date('Y-m-d H:i:s',time());
-				$sql1 = $this->db->where('id',$goods_id)->set($goods_data)->get_compiled_update('gw_goods');
-				$this->db->query($sql1);
-				$res1 = $this->db->affected_rows();
-				if(!$res1){
-					throw new Exception("存储过程失败1", 1);
-				}
-			}
-			
-			// 更新库存表
-			if(!empty($gw_stock_update)){
-				$res2 = $this->db->update_batch('gw_stock',$gw_stock_update,'id');
-				if(!$res2){
-					throw new Exception("存储过程失败2", 1);
-				}
-			}
-			// 新增库存表
-			if(!empty($gw_stock_add)){
-				$res3 = $this->db->insert_batch('gw_stock',$gw_stock_add);
-				if(!$res3){
-					throw new Exception("存储过程失败3", 1);
-				}
-			}
-			
-			if ($this->db->trans_status() === FALSE)
-			{
-			    throw new Exception("存储过程失败4", 1);
-			}
-			else
-			{
-			    $this->db->trans_commit();
-			    return true;
-			}
-		} catch (Exception $e) {
-			// echo $e->getMessage();exit;
-			 $this->db->trans_rollback();
-			 return false;
-		}
-	}
-
-
-	/**
-	 * deleteStockById
-	 * @author lyne
-	 */
-	public function deleteStockById($id){
-		if(!$id) return false;
-		$sql = $this->db->where('id',$id)->get_compiled_delete('gw_stock');
-		if($this->db->query($sql)){
-			return $this->db->affected_rows();
-		}
-		return false;
-	}
-
-
 
 	/** 
 	 * selectExportGoods
@@ -281,10 +179,9 @@ class Goods_model extends MY_Model {
 	 * @return  array
 	 */  
 	public function selectExportGoods($options=null){
-		
-		$this->db->select('g.*,s.spec_name,s.price,s.stock,s.sales,s.min_buynum,c.cate_name as cate_two_name,v.vendor_name');
-		$this->db->from('gw_stock s');
-		$this->db->join('gw_goods g','g.id=s.goods_id','left');
+
+		$this->db->select('g.*,c.cate_name as cate_two_name,v.vendor_name');
+		$this->db->from('gw_goods g');
 		$this->db->join('gw_cate c','c.id=g.cate_id_two','left');
 		$this->db->join('gw_vendor v','v.id=g.vendor_id','left');
 

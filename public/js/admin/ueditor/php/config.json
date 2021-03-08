@@ -10,7 +10,7 @@
     "imageInsertAlign": "none", /* 插入的图片浮动方式 */
     /* 线上 */
     "imageUrlPrefix": "",
-    "imagePathFormat": "/upload/{yyyy}{mm}{dd}/2/G{time}X{rand:4}",
+    "imagePathFormat": "/upload/original/goods/{yyyy}{mm}{dd}/G{time}X{rand:4}",
                         /* {filename} 会替换成原文件名,配置这项需要注意中文乱码问题 */
                         /* {rand:6} 会替换成随机数,后面的数字是随机数的位数 */
                         /* {time} 会替换成时间戳 */

@@ -78,39 +78,21 @@ ul li{list-style-type:none}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="well col-sm-11 spec-list" style="margin-left: 30px;">
-                                            {{foreach $goods_stock_list as $k=>$gs}}
-                                            <div class="col-sm-11 spec-one">
-                                                <div class="col-sm-3">
-                                                    <div class="form-group">
-                                                        <label>商品规格 *</label>
-                                                        {{$gs['spec_select']}}
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-group">
-                                                        <label>单价 *</label>
-                                                        <input name="price[]" type="text" required class="form-control" value="{{$gs['price']}}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-group">
-                                                        <label>库存 *</label>
-                                                        <input name="stock[]" type="text" required class="form-control" value="{{$gs['stock']}}">
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-3" style="position: relative;">
-                                                    <div class="form-group">
-                                                        <label>起订数 *</label>
-                                                        <input name="min_buynum[]" type="text" required class="form-control" value="{{$gs['min_buynum']}}">
-                                                    </div>
-                                                    <a class="del-spec-input" href="javascript:;" style="position: absolute;top: 30px;right: -20px;color:red">删除</a>
-                                                    {{if $k==0}}
-                                                    <a class="add-spec-input" href="javascript:;" style="position: absolute;top: 30px;right: -100px;">继续添加</a>
-                                                    {{/if}}
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>单价 *</label>
+                                                    <input name="price" type="text" required class="form-control" value="{{$details['price']}}">
                                                 </div>
                                             </div>
-                                            {{/foreach}}
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>库存 *</label>
+                                                    <input name="stock" type="text" required class="form-control" value="{{$details['stock']}}">
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="col-sm-12">
                                             <div class="col-sm-2">
@@ -206,35 +188,6 @@ ul li{list-style-type:none}
 <script type="text/javascript" src="{{$public}}/js/admin/server/goodsedit.js"></script>
 <script src="{{$public}}/js/admin/jquery.form.js"></script>
 <script type="text/javascript">
-$(function(){
-    var spec_select = '{{$spec_select}}';
-    $(".add-spec-input").on('click',function(event){
-        var tmp_html = '<div class="col-sm-11 spec_this_box"><div class="col-sm-3"><div class="form-group"><label>商品规格 *</label>'+spec_select+'</div></div><div class="col-sm-3"><div class="form-group"><label>单价 *</label><input name="price[]" type="text" required class="form-control"></div> </div><div class="col-sm-3"><div class="form-group"><label>库存 *</label><input name="stock[]" required type="text" class="form-control"></div></div><div class="col-sm-3" style="position: relative;"><div class="form-group"><label>起订数 *</label><input name="min_buynum[]" type="text" required class="form-control"></div><a class="close-spec-input" href="javascript:;" onClick="closeSpec(this)" style="position: absolute;top: 30px;right: -25px;">取消</a></div></div>';
-        $(this).parents('.spec-list').append(tmp_html);
-    });
-
-    // 删除规格
-    $(".del-spec-input").click(function(){
-        var spec_str = $(this).parents('.spec-one').find('option:selected').val();
-        // alert(spec_str);
-        post(module+'/goods/ajaxDelSpec',{spec_str:spec_str},function(res){
-            if(res.retcode==1){
-                layer.msg(res.msg,{icon:1,time:1000});
-            }else{
-                layer.msg(res.msg,{icon:2,time:1000});
-            }
-        });
-    });
-
-    // change select 规格
-    $(".spec-list select").change(function(){
-        var gs_id = $(this).attr('tmp-gsid');
-        // if(gs_id==0) return false;
-        var up_option = $(this).children('option:selected').val();
-        var arr = up_option.split('|');
-        $(this).children('option:selected').val(gs_id+'|'+arr[1]);
-    });
-});
 function closeSpec(e){
     $(e).parents('.spec_this_box').remove();
 }

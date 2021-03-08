@@ -41,29 +41,20 @@ ul li{list-style-type:none}
                                     </div>
                                 </div>
                             </div>
-                            <div class="well col-sm-8" style="margin-left: 30px;">
-                            {{foreach $details['stock_list'] as $s}}
                             <div class="col-sm-12">
-                                <div class="col-sm-4">
-                                    <div class="form-group">
-                                        <label>规格</label>
-                                        <span class="form-control">{{$s['spec_name']}}</span>
-                                    </div>
-                                </div>
+                               
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         <label>供货价</label>
-                                        <span class="form-control">{{$s['price']}}</span>
+                                        <span class="form-control">{{$details['price']}}</span>
                                     </div>
                                 </div>
                                 <div class="col-sm-4">
                                     <div class="form-group">
                                         <label>剩余库存</label>
-                                        <span class="form-control">{{$s['stock']}}</span>
+                                        <span class="form-control">{{$details['stock']}}</span>
                                     </div>
                                 </div>
-                            </div>
-                            {{/foreach}}
                             </div>
                         </div>
                     </div>

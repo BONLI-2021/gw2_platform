@@ -17,13 +17,14 @@ define('PIC_T_URL', 'http://'.$_SERVER['HTTP_HOST'].'/upload/thumb/');//http缩�
 define('PIC_O_PATH', '/upload/original/');//图片原图上传路径
 define('PIC_T_PATH', '/upload/thumb/');//缩略图上传路径
 
+// 临时文件上传路径
+define('TF_EXPRESS_PATH', FCPATH.'upload/excel_goods/');
+define('TF_EXPRESS_URL', '//'.$_SERVER['HTTP_HOST'].'/upload/excel_goods/');
+
 // 企业logo上传配置(本地)
 define('UP_URL', 'http://'.$_SERVER['HTTP_HOST'].'/upload/logo/');//http图片原图访问地址
 define('UP_PATH', WWWROOTPATH.'/upload/logo/');//图片原图上传路径
 
-// 临时文件上传路径
-define('TF_PATH', FCPATH.'upload/temp/');
-define('TF_URL', 'http://'.$_SERVER['HTTP_HOST'].'/upload/temp/');
 // 公共目录
 define('PUBLIC_PATH', FCPATH);
 
