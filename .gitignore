@@ -23,6 +23,9 @@ application/sessions/admin/*
 application/sessions/home/*
 public/templates_c/*
 public/upload/*
+!public/css/*
+!public/images/*
+!public/js/*
 
 
 # IDE Files
