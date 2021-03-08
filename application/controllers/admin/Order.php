@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Order extends MY_Controller {
+class Order extends Admin_Controller {
     
     protected $isNeedLogin = TRUE;
 

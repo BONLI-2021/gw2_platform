@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Goods extends MY_Controller {
+class Goods extends Admin_Controller {
     
     protected $isNeedLogin = TRUE;
 
@@ -133,7 +133,6 @@ class Goods extends MY_Controller {
      * @author lyne
      */
     public function doAddGoods(){
-        $this->load->library('MY_Snow');
         $data = $this->input->post();
         if(!empty($data['cate_id'])){
             $tmp_cateid = explode('-',$data['cate_id']);
@@ -145,28 +144,14 @@ class Goods extends MY_Controller {
         unset($data['g_small_pic']);
         unset($data['g_big_pic']);
         unset($data['cate_id']);
-        $gw_stock = [];
-        $tmp_minprice = 10000000000;
-        foreach ($data['spec_name'] as $k => $v) {
-            if($tmp_minprice>$data['price'][$k]){
-                $tmp_minprice = $data['price'][$k];
-            }
-            $gw_stock[$k]['spec_name'] = $v;
-            $gw_stock[$k]['price'] = $data['price'][$k];
-            $gw_stock[$k]['stock'] = $data['stock'][$k];
-            $gw_stock[$k]['min_buynum'] = $data['min_buynum'][$k];
-        }
 
-        $data['min_price'] = $tmp_minprice;
+        $data['price'] = $data['price'];
+        $data['stock'] = $data['stock'];
         $data['is_up_time'] = time();
         $data['add_time'] = time();
-
-        unset($data['spec_name']);
-        unset($data['price']);
-        unset($data['stock']);
-        unset($data['min_buynum']);
+var_dump($data);exit;
         
-        $goods_id = $this->goods_model->insertGoods($data,$gw_stock);
+        $goods_id = $this->goods_model->insertGoods($data);
         if($goods_id) $this->ajaxReturn(['retcode'=>1,'msg'=>'提交成功','data'=>[]]);
         else $this->ajaxReturn(['retcode'=>2001,'msg'=>'存储过程失败','data'=>[]]);
     }

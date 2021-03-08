@@ -10,22 +10,22 @@ define('WWWROOTPATH', rtrim(FCPATH, '/'));
 date_default_timezone_set('Asia/Shanghai');
 
 // 图片上传配置（本地）
-define('PIC_D_URL', 'http://'.$_SERVER['HTTP_HOST'].'/public/images/');//http默认图片访问地址
-define('PIC_O_URL', 'http://'.$_SERVER['HTTP_HOST'].'/public/upload/original/');//http图片原图访问地址
-define('PIC_T_URL', 'http://'.$_SERVER['HTTP_HOST'].'/public/upload/thumb/');//http缩略图访问地址
+define('PIC_D_URL', 'http://'.$_SERVER['HTTP_HOST'].'/images/');//http默认图片访问地址
+define('PIC_O_URL', 'http://'.$_SERVER['HTTP_HOST'].'/upload/original/');//http图片原图访问地址
+define('PIC_T_URL', 'http://'.$_SERVER['HTTP_HOST'].'/upload/thumb/');//http缩略图访问地址
 
-define('PIC_O_PATH', '/public/upload/original/');//图片原图上传路径
-define('PIC_T_PATH', '/public/upload/thumb/');//缩略图上传路径
+define('PIC_O_PATH', '/upload/original/');//图片原图上传路径
+define('PIC_T_PATH', '/upload/thumb/');//缩略图上传路径
 
 // 企业logo上传配置(本地)
-define('UP_URL', 'http://'.$_SERVER['HTTP_HOST'].'/public/upload/logo/');//http图片原图访问地址
-define('UP_PATH', WWWROOTPATH.'/public/upload/logo/');//图片原图上传路径
+define('UP_URL', 'http://'.$_SERVER['HTTP_HOST'].'/upload/logo/');//http图片原图访问地址
+define('UP_PATH', WWWROOTPATH.'/upload/logo/');//图片原图上传路径
 
 // 临时文件上传路径
-define('TF_PATH', FCPATH.'public/upload/temp/');
-define('TF_URL', 'http://'.$_SERVER['HTTP_HOST'].'/public/upload/temp/');
+define('TF_PATH', FCPATH.'upload/temp/');
+define('TF_URL', 'http://'.$_SERVER['HTTP_HOST'].'/upload/temp/');
 // 公共目录
-define('PUBLIC_PATH', FCPATH.'public/');
+define('PUBLIC_PATH', FCPATH);
 
 // 图片规格
 define("PICINDEX_S",'156_163');//首页小图片

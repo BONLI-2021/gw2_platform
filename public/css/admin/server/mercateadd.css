@@ -1,0 +1,37 @@
+.ablum-upload .my-thumbnail {
+    margin: 0px 0;
+    width: 20%;
+}
+.ablum-upload-btn .my-thumbnail {
+    width: 20%;
+}
+.pic-name{
+    position: absolute;
+    width: 350px;
+    height: 20px;
+    background-color: #ddd;
+    text-align: center;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    left: 20px;
+    bottom: 5px;
+}
+.img-del {
+    color:red;
+    font-weight: bolder;
+    position: absolute;
+    font-size: 20px;
+    cursor: pointer;
+    right: 80px;
+}
+.img-t{
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: inline-block;
+    line-height: 1.42857;
+    max-width: 100%;
+    padding: 4px;
+    transition: all 0.2s ease-in-out 0s; 
+}

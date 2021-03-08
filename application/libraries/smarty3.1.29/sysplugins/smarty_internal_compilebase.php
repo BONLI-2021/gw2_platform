@@ -75,10 +75,10 @@ abstract class Smarty_Internal_CompileBase
                 }
                 // named attribute
             } else {
-                foreach ($mixed as $k => $kv) {
+                foreach ($mixed as $kv) {
                     // $kv = each($mixed);
                     // option flag?
-                    if (in_array($kv['key'], $this->option_flags)) {
+                    if (isset($kv['key']) && in_array($kv['key'], $this->option_flags)) {
                         if (is_bool($kv['value'])) {
                             $_indexed_attr[$kv['key']] = $kv['value'];
                         } elseif (is_string($kv['value']) && in_array(trim($kv['value'], '\'"'), array('true', 'false'))) {

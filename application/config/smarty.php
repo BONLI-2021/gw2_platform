@@ -1,27 +1,29 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-
-// 模板主题配置
 $config['theme']        = 'default';
+$config['cache_lifetime'] = 60;
+$config['caching'] = true;
 // 模板文件存放路径
 if(strpos($_SERVER['REQUEST_URI'],'admin') !==false)
 {
     $config['template_dir'] = APPPATH.'views/admin';
+    $config['compile_dir'] = APPPATH .'views/admin/template_c';
+	$config['cache_dir'] = APPPATH . 'views/admin/cache';
+	$config['config_dir'] = APPPATH . 'views/admin/config';
 }
 else
 {
     $config['template_dir'] = APPPATH.'views/home';
+    $config['compile_dir'] = APPPATH .'views/admin/template_c';
+	$config['cache_dir'] = APPPATH . 'views/admin/cache';
+	$config['config_dir'] = APPPATH . 'views/admin/config';
 }
 
-// 编译文件存放路径
-$config['compile_dir']  = FCPATH.'templates_c/';
-// 缓存文件存放路径
-$config['cache_dir']    = FCPATH.'cache/';
-// 配置文件存放路径
-$config['config_dir']   = FCPATH.'configs/';
-// 设置模板文件后缀
+
+$config['use_sub_dirs'] = false; //子目录变量(是否在缓存文件夹中生成子目录)
+$config['left_delimiter'] = '{{';
+$config['right_delimiter'] = '}}';
 $config['template_ext'] = '.html';
-// 缓存开关
-$config['caching']      = false;
-// 编译文件失效时间
-$config['lefttime']     = 60;
+
+
+

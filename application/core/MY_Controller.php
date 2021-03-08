@@ -254,10 +254,9 @@ class Admin_Controller extends CI_Controller {
         parent::__construct();
         $this->load->set_admin_view_dir();
          // 分配一个全局变量
-        $this->assign('public', base_url('public'));
+        $this->assign('public', base_url());
         $this->assign('module', base_url('admin'));
-        // $this->navbarByAdmin();
-
+        $this->navbarByAdmin();
         $msectime = $this->msectime();
         $this->assign('version','v1.0.1');
         $this->assign('timestamp',$msectime);
@@ -418,7 +417,7 @@ class Admin_Controller extends CI_Controller {
     }
     
     public function getTree($data, $pId){
-        $tree = '';
+        $tree = [];
         foreach($data as $k => &$v){
             if($v['pid'] == $pId){ 
                 //父亲找到儿子

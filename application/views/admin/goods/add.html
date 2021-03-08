@@ -69,39 +69,23 @@ ul li{list-style-type:none}
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="well col-sm-11 spec-list" style="margin-left: 30px;">
-                                            <div class="col-sm-11 ">
-                                                <div class="col-sm-3">
-                                                    <div class="form-group">
-                                                        <label>商品规格 *</label>
-                                                        {{if $spec_select!=""}}        
-                                                            {{$spec_select}}
-                                                        {{else}}
-                                                        <a href="{{$module}}/goods/addSpec">请先添加规格</a>
-                                                        {{/if}}
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-group">
-                                                        <label>单价 *</label>
-                                                        <input name="price[]" type="text" required class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-3">
-                                                    <div class="form-group">
-                                                        <label>库存 *</label>
-                                                        <input name="stock[]" type="text" required class="form-control">
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-3" style="position: relative;">
-                                                    <div class="form-group">
-                                                        <label>起订数 *</label>
-                                                        <input name="min_buynum[]" type="text" required class="form-control">
-                                                    </div>
-                                                    <a class="add-spec-input" href="javascript:;" style="position: absolute;top: 30px;right: -50px;">继续添加</a>
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>单价 *</label>
+                                                    <input name="price" type="text" required class="form-control">
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="col-sm-12">
+                                            <div class="col-sm-6">
+                                                <div class="form-group">
+                                                    <label>库存 *</label>
+                                                    <input name="stock" type="text" required class="form-control">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
                                         <div class="col-sm-12">
                                             <div class="col-sm-2">
                                                 <div class="form-group">
@@ -180,17 +164,6 @@ ul li{list-style-type:none}
 <script type="text/javascript" src="{{$public}}/js/admin/server/goodsadd.js"></script>
 <script src="{{$public}}/js/admin/jquery.form.js"></script>
 <script type="text/javascript">
-$(function(){
-    var spec_select = '{{$spec_select}}';
-    $(".add-spec-input").on('click',function(event){
-        var tmp_html = '<div class="col-sm-11 spec_this_box"><div class="col-sm-3"><div class="form-group"><label>商品规格 *</label>'+spec_select+'</div></div><div class="col-sm-3"><div class="form-group"><label>单价 *</label><input name="price[]" type="text" required class="form-control"></div> </div><div class="col-sm-3"><div class="form-group"><label>库存 *</label><input name="stock[]" required type="text" class="form-control"></div></div><div class="col-sm-3" style="position: relative;"><div class="form-group"><label>起订数 *</label><input name="min_buynum[]" type="text" required class="form-control"></div><a class="close-spec-input" href="javascript:;" onClick="closeSpec(this)" style="position: absolute;top: 30px;right: -25px;">取消</a></div></div>';
-        $(this).parents('.spec-list').append(tmp_html);
-    });
-});
-function closeSpec(e){
-    $(e).parents('.spec_this_box').remove();
-}
-
 //图片上传预览功能
 var userAgent = navigator.userAgent; //用于判断浏览器类型
 $(".file").change(function() {
