@@ -1,0 +1,144 @@
+<table class="table table-bordered table-hover" data-click-to-select='true'>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>订单号</th>
+            <th>用户账号</th>
+            <th>所属区域</th>
+            <th>订单金额</th>
+            <th>收货人</th>
+            <th>收货手机号</th>
+            <th>收货地址</th>
+            <th>审核状态</th>
+            <th>下单时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+    	{{if !empty($orderlist)}}
+    	{{foreach $orderlist as $k=>$v}}
+        <tr tmp-id="{{$v['id']}}" tmp-k="{{$k+1+$offset}}">
+            <td class="order_id">{{$k+1+$offset}}</td>
+            <td class="p_order_code"><a href="{{$module}}/order/orderDts/{{$v['id']}}">{{$v['p_order_code']}}</a></td>
+            <td>{{$v['account']}}</td>
+            <td>{{$v['area_name']}}{{if isset($v['parent_area_name'])}}/{{$v['parent_area_name']}}{{/if}}</td>
+            <td>{{$v['order_amt']}}</td>
+            <td>{{$v['consignee']}}</td>
+            <td>{{$v['consignee_phone']}}</td>
+            <td>{{$v['addr']}}{{$v['details']}}</td>
+            <td><span class="label {{$v['reviewStatusLabel']}}">{{$v['review_status_v']}}</span></td>
+            <td>{{$v['add_time']}}</td>
+            <td>
+                <a class="btn btn-xs btn-outline btn-primary" href="{{$module}}/order/orderDts/{{$v['id']}}">查看</a>
+                {{if isset($v['cancel'])}}
+                    <a class="btn btn-xs btn-outline btn-danger cancel-order" href="javascript:void(0);">取消</a>
+                {{/if}}
+            </td>
+        </tr>
+        {{/foreach}}
+       	{{else}}
+       	<tr class="no-records-found t-align">
+			<td colspan="11">没有找到匹配的记录</td>
+		</tr>
+       	{{/if}}
+    </tbody>
+</table>
+
+<div id="page-div" class="row">
+    <div class="col-sm-6">
+        <div id="editable_info" class="dataTables_info" role="alert" aria-live="polite" aria-relevant="all">显示 <span class="start">1</span> 到 <span class="end">10</span> 项，共 {{$total}} 项</div>
+    </div>
+    <div class="col-sm-6">
+        <div id="editable_paginate" class="dataTables_paginate paging_simple_numbers">
+            <ul class="pagination">
+            	{{if !empty($showpage)}}
+                <li id="page-first" class="paginate_button previous" aria-controls="editable" tabindex="0" page="1">
+                	<a href="{{$module}}/order/ajaxOrderList/1">首页</a>
+                </li>
+				{{$showpage}}
+				<li id="page-last" class="paginate_button next" aria-controls="editable" tabindex="0" page="{{$last_page}}">
+                    <a href="{{$module}}/order/ajaxOrderList/{{$last_page}}">尾页</a>
+                </li>
+                {{/if}}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function(){
+    $("#datepicker2").datepicker({
+        autoclose:true,
+        clearBtn:false,
+        todayBtn:true,
+        format:"yyyy-mm-dd"
+    });
+	// 显示从1到10项，共xx项
+	var start = $("#ajaxOrderList table tbody tr:first").attr('tmp-k');
+	var end = $("#ajaxOrderList table tbody tr:last").attr('tmp-k');
+	$("#page-div .start").html(start);
+	$("#page-div .end").html(end);
+
+
+	// 上一页下一页改为post
+	$("#page-div .paginate_button").click(function (event) {
+        var current_page = event.target.dataset.ciPaginationPage;
+        window.history.pushState(null, '', module+'/order/index#/'+current_page);
+	    var url = $(this).children('a').attr('href');
+	    getOrderList(true,url);
+	    // return false;
+	    event.preventDefault();
+	});
+
+    $("#page-last,#page-first").click(function(event){
+        var current_page = $(this).attr('page');
+        window.history.pushState(null, '', module+'/order/index#/'+current_page);
+    });
+
+    // 取消订单
+    $("#ajaxOrderList .cancel-order").click(function(){
+        var $this = $(this);
+        //询问框
+        layer.confirm('您确定要取消该笔订单吗？', {
+            btn: ['确定','算了'] //按钮
+        }, function(){
+            var id = $this.parents('tr').attr('tmp-id');
+            var url = module +'/order/updateOrderStatus';
+            post(url,{id:id,status:-1},function(result){
+                if(result.retcode===1){
+                    layer.alert(result.msg, {
+                        icon: 1,
+                        skin: 'layer-ext-moon',
+                        yes: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        },cancel: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        }
+                    })
+                }else{
+                    layer.alert(result.msg, {
+                        icon: 2,
+                        skin: 'layer-ext-moon',
+                        yes: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        },cancel: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        }
+                    })
+                }
+            });
+        }, function(){
+            layer.msg('操作未执行', {icon: 2});
+        });
+    });
+})
+
+
+</script>
+
+
+

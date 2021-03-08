@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+{{include file="public/header.html"}}
+<link href="{{$public}}/css/admin/plugins/select2/select2.min.css" rel="stylesheet" />
+<link href="{{$public}}/css/admin/plugins/datapicker/datepicker3.css" rel="stylesheet">
+<link href="{{$public}}/css/admin/plugins/chosen/chosen.css" rel="stylesheet">
+
+<style type="text/css">
+#datepicker2{z-index: 9999}
+</style>
+</head>
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+    <div id="wrapper">
+        {{include file="public/navbar.html"}}
+        <!--右侧部分开始-->
+        <div id="page-wrapper" class="gray-bg dashbard-1">
+            {{include file="public/menu.html"}}
+            <br>
+            <div class="row" id="content-main" style="">
+                <div class="col-sm-12">
+                    <div class="tabs-container">
+                        <ul class="nav nav-tabs">
+                            {{if empty($vid)}}
+                                <li class="active" tmp-value="1"><a data-toggle="tab" href="#tab-1" aria-expanded="true">待审核</a>
+                            </li>
+                                <li class="" tmp-value="2"><a data-toggle="tab" href="#tab-1" aria-expanded="false">待发货</a>
+                            {{else}}
+                                <li class="active" tmp-value="2"><a data-toggle="tab" href="#tab-1" aria-expanded="false">待发货</a>
+                            {{/if}}
+                            </li>
+                            <li class="" tmp-value="3"><a data-toggle="tab" href="#tab-1" aria-expanded="false">已发货</a>
+                            </li>
+                            <li class="" tmp-value="4"><a data-toggle="tab" href="#tab-1" aria-expanded="false">已开票</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="tab-1" class="tab-pane active">
+                                <div class="panel-body">
+                                    <div class="ibox float-e-margins">
+                                        <div class="ibox-title" style="min-height:94px;border:0px">
+                                            <form id="down-order-form" action="{{$module}}/order/exportVendorOrderExcel" method="post" tmp-start="{{date('Y-m-01', strtotime('-3 month'))}}" tmp-end="{{date('Y-m-d', time())}}">
+
+                                                <div class="col-sm-3">
+                                                    <div id="datepicker" class="input-daterange input-group input-medium date-picker">
+                                                        <input class="input-sm form-control" name="start" value="{{if isset($smarty.session.v_options['start']) && !empty($smarty.session.v_options['start'])}}{{$smarty.session.v_options['start']}}{{else}}{{date('Y-m-01', strtotime('-3 month'))}}{{/if}}" type="text">
+                                                        <span class="input-group-addon">到</span>
+                                                        <input class="input-sm form-control" name="end" value="{{if isset($smarty.session.v_options['end']) && !empty($smarty.session.v_options['end'])}}{{$smarty.session.v_options['end']}}{{else}}{{date('Y-m-d',time())}}{{/if}}" type="text">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-1 pl0" style="width:13%;">
+                                                    <select class="form-control m-b js-example-basic-multiple area-choose" name="area_id" tmp-msg="请选择区域">
+                                                        <option value="">- 筛选区域 -</option>
+                                                        {{foreach $area as $a}}
+                                                        <option value="{{$a.id}}">{{$a.area_name}}</option>
+                                                        {{/foreach}}
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-1" style="width: 18%;">
+                                                    <select id="vendor_id" class="form-control m-b js-example-basic-multiple vendor-choose" name="vendor_id" tmp-msg="请选择供应商" >
+                                                        {{if !empty($vid)}}
+                                                            {{foreach $vendor as $v}}
+                                                                <option value="{{$v.id}}">{{$v.vendor_name}}</option>
+                                                            {{/foreach}}
+                                                        {{else}}
+                                                            <option value="">- 筛选供应商 -</option>
+                                                            {{foreach $vendor as $v}}
+                                                                <option value="{{$v.id}}" {{if $v['id']==$vid}}selected{{/if}}>{{$v.vendor_name}}</option>
+                                                            {{/foreach}}
+                                                        {{/if}}
+                                                    </select>
+                                                </div>
+                                                <div class="send_order_status">
+                                                    {{if empty($vid)}}
+                                                        <input type="hidden" name="order_status" value='1'>
+                                                    {{else}}
+                                                        <input type="hidden" name="order_status" value='2'>
+                                                    {{/if}}
+                                                </div>
+                                                <div class="col-sm-3">
+                                                    <div class="input-group m-b">
+                                                        <div class="input-group-btn">
+                                                            <button class="btn btn-white dropdown-toggle" data-toggle="dropdown" type="button" aria-expanded="false">操作<span class="caret"></span></button>
+                                                            <ul class="dropdown-menu search-menu">
+                                                                <li tmp-type="s_order_code" tmp-name="订单号"><a href="javascript:;">按订单号查询</a></li>
+                                                                <li tmp-type="account" tmp-name="用户手机号"><a href="javascript:;">按用户账号查询</a></li>
+                                                            </ul>
+                                                        </div>
+                                                        <input class="form-control" name="search_key" type="hidden">
+                                                        <input class="form-control" name="search_val" type="text" placeholder="请输入订单号/账号">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-primary search-btn" type="button">搜索 </button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-1 ">
+                                                    <div class="input-group m-b">
+                                                        <span class="input-group-btn">
+                                                            <button class="btn btn-error" type="reset">重置</button>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-1">
+                                                    <button class="btn btn-success export-excel" type="submit">
+                                                    <i class="fa fa-download"></i>
+                                                    <span class="bold">导出</span>
+                                                    </button>
+                                                    <button id="load-btn" class="btn btn-default hidden" type="submit"><img src="{{$public}}/images/admin/loading.gif"/>  玩命加载中</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div id="ajaxVendorOrderList" class="ibox-content">
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            {{include file="public/footer.html"}}
+        <script src="{{$public}}/js/admin/plugins/chosen/chosen.jquery.js"></script>
+        <script src="{{$public}}/js/admin/plugins/select2/select2.min.js"></script>
+        <script src="{{$public}}/js/admin/plugins/datapicker/bootstrap-datepicker.js"></script>
+        <script type="text/javascript">
+
+            $(function(){
+                $("#datepicker").datepicker({
+                    autoclose:true,
+                    clearBtn:false,
+                    todayBtn:true,
+                    format:"yyyy-mm-dd"
+                });
+
+                $(document).ready(function() {
+                    $('.js-example-basic-multiple').select2();
+                });
+
+                // 初始化 获取列表
+                getOrderList(true);
+
+                // 导出
+                $("#down-order-form").submit(function(){
+                    var start = $("#datepicker input[name='start']").val();
+                    var end = $("#datepicker input[name='end']").val();
+                    var search_key = $("#down-order-form input[name='search_key']").val();
+                    var search_val = $("#down-order-form input[name='search_val']").val();
+                    
+                    // 订单状态
+                    var order_status = $(".send_order_status").find("input[name='order_status']").val();
+
+                    // 供应商
+                    var vendor_id = $("select[name='vendor_id']").val();
+
+                    // 区域
+                    var area_id = $("select[name='area_id']").val();
+
+                    var url = module + '/order/exportVendorOrderExcel';
+                    mask = false;
+                    $.ajax({
+                        async:false,
+                        type:'POST',
+                        data:{start:start,end:end,search_key:search_key,search_val:search_val,order_status:order_status,vendor_id:vendor_id,area_id:area_id},
+                        url:url,
+                        beforeSend : function(XMLHttpRequest){
+                            // 发送请求前
+                            $("#load-btn").removeClass('hidden');
+                            $(".export-excel").addClass('hidden');
+                            loading = layer.msg('正在导出中, 请稍等', {  //通过layer插件来进行提示正在加载
+                                icon: 16,
+                                shade: [0.5,'#000']
+                            });
+                        },
+                        complete : function(XMLHttpRequest, r){
+                            // 请求完成后回调函数
+                            layer.close(loading);
+                            $("#load-btn").addClass('hidden');
+                            $(".export-excel").removeClass('hidden');
+                        },
+                        success : function(res){
+                            if(res.retcode==3001){
+                                mark = false;
+                                toastr.info(res.msg);
+                            }else{
+                                mark = true
+                            }
+
+                        },
+                        error : function(){
+                            mark = false;
+                        }
+                    });
+                    return mark;
+                })
+
+                $("#down-order-form .search-menu li").click(function(){
+                    $(this).parent().find('li').removeClass('active');
+                    $(this).addClass('active');
+
+                    var search_key = $(this).attr('tmp-type');
+                    var search_name = $(this).attr('tmp-name');
+                    $("#down-order-form input[name='search_key']").val(search_key);
+                    $("#down-order-form input[name='search_val']").attr('placeholder','请输入'+search_name);
+                });
+
+                // 搜索
+                $("#down-order-form .search-btn").click(function(){
+                    getOrderList(false);
+                });
+               
+                // 重置
+                $("#down-order-form button[type='reset']").click(function(){
+                    $("#down-order-form .search-menu li").removeClass('active');
+                    
+                    $("#down-order-form input[name='search_key']").val('');
+                    $("#down-order-form input[name='search_val']").val('');
+                    // 重置区域
+                    $("#down-order-form select[name='area_id'] option:first").prop('selected','selected');
+                    $("select[name='area_id']").next().find('.select2-selection__rendered').html('- 筛选区域 -');
+
+                    // 重置供应商判断，如果option>1
+                    if($("select[name='vendor_id']")[0].options.length>1){
+                        $("#down-order-form select[name='vendor_id'] option:first").prop('selected','selected');
+                        $("select[name='vendor_id']").next().find('.select2-selection__rendered').html('- 筛选供应商 -');
+                    }
+
+                    var start = $("#down-order-form").attr('tmp-start');
+                    var end = $("#down-order-form").attr('tmp-end');
+                    $("#datepicker input[name='start']").val(start);
+                    $("#datepicker input[name='end']").val(end);
+
+                    $.get(module+'/order/orderClear');
+                    getOrderList(false);
+                })
+
+                // 选择订单状态
+                $(".nav-tabs li").click(function(){
+                    // 改变显示状态
+                    var status_value = $(this).attr('tmp-value');
+                    $(".send_order_status").html('<input type="hidden" name="order_status" value="'+status_value+'">');
+                    getOrderList(false);
+                });
+
+                // 战区分区选择条件
+                $(".area-choose,.vendor-choose").on('change',function(){
+                    getOrderList(false);
+                });
+
+            })
+           
+            // 获取订单列表
+            function getOrderList(type,url=null){
+                // 订单日期
+                var start = $("#datepicker input[name='start']").val();
+                var end = $("#datepicker input[name='end']").val();
+
+                // 关键字查询
+                var search_key = $("#down-order-form input[name='search_key']").val();
+                var search_val = $("#down-order-form input[name='search_val']").val();
+                if(search_val != '' && search_key ==''){
+                    layer.msg('请先指定关键字类型');
+                    return false;
+                }
+                // 订单状态
+                var order_status = $('.send_order_status').find('input[name="order_status"]').val();
+                
+                // 区域框
+                var area_id = $("#down-order-form").find("select[name='area_id']").find('option:selected').val();
+                var vendor_id = $("#down-order-form").find("select[name='vendor_id']").find('option:selected').val();
+
+                if(url==null){
+                    var u = document.location.toString();
+                    var current_page = u.split("#/")[1];
+                    if(current_page==undefined || current_page=='undefined'){
+                        current_page='';
+                    }
+                    if(type==false){
+                        url = u.split("#/")[0];
+                        current_page='';
+                        window.history.pushState(null, '', url);
+                    }
+                    url = module + '/order/ajaxVendorOrderList/'+current_page;
+                }
+
+                posth(url,{start:start,end:end,search_key:search_key,search_val:search_val,order_status:order_status,area_id:area_id,vendor_id:vendor_id},function(res){
+                    $("#ajaxVendorOrderList").html(res);
+                });
+            }
+
+            </script>
+        </div>
+        <!--右侧部分结束-->
+    </div>
+
+</body>
+</html>

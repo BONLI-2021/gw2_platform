@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+{{include file="public/header.html"}}
+</head>
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+    <div id="wrapper">
+        {{include file="public/navbar.html"}}
+        <!--右侧部分开始-->
+        <div id="page-wrapper" class="gray-bg dashbard-1">
+                {{include file="public/menu.html"}}
+                <div class="row" id="content-main" style="">
+                    <div class="col-sm-9">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="ibox">
+                                <div class="ibox-content">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <div class="m-b-md">
+                                                <a href="javascript:;" onclick="javascript:history.back(-1)" class="btn btn-white btn-xs pull-right">返回上一页</a>
+                                                <h2>完善管理员信息</h2>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="ibox float-e-margins">
+                                                <div class="ibox-content">
+                                                    <form class="form-horizontal m-t" id="signupForm">
+                                                        
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label">昵称：</label>
+                                                            <div class="col-sm-8">
+                                                                <input id="username" name="username" class="form-control" type="text" aria-required="true" aria-invalid="true" class="error">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label">E-mail：</label>
+                                                            <div class="col-sm-8">
+                                                                <input id="email" name="email" class="form-control" type="email">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label">密码：</label>
+                                                            <div class="col-sm-8">
+                                                                <input id="password" name="password" class="form-control" type="password">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label">确认密码：</label>
+                                                            <div class="col-sm-8">
+                                                                <input id="confirm_password" name="confirm_password" class="form-control" type="password">
+                                                                <span class="help-block m-b-none"><i class="fa fa-info-circle"></i> 请再次输入您的密码</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label">所属商户：</label>
+                                                            <div class="col-sm-8">
+                                                                <select class="form-control m-b" name="account">
+                                                                <option>上海祥先</option>
+                                                                <option>上海邦礼</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label class="col-sm-3 control-label">分配角色：</label>
+                                                            <div class="col-sm-8">
+                                                                <select class="form-control m-b" name="account">
+                                                                <option>超级管理员</option>
+                                                                <option>管理员</option>
+                                                                <option>商品专员</option>
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        <div class="form-group">
+                                                            <div class="col-sm-8 col-sm-offset-3">
+                                                                <button class="btn btn-primary" type="submit">提交</button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="wrapper wrapper-content project-manager">
+                            <h4>商户资料介绍</h4>
+                            <img src="" class="img-responsive"/><br>
+                            <p class="small font-bold">
+                                <span><i class="fa fa-circle text-warning"></i> 123</span>
+                                &nbsp;&nbsp;<span><i class="fa fa-circle text-info"></i>&nbsp;编号&nbsp;&nbsp;123</span>
+                            </p>
+                            <p class="small"></p>
+                            <h5>负责人信息</h5>
+                            <ul class="list-unstyled project-files">
+                                <li><i class="fa fa-user"></i> 123</li>
+                                <li><i class="fa fa-phone"></i> 123</li>
+                                <li><i class="fa fa fa-envelope"></i> 123</li>
+                                <li><i class="fa fa-calendar-o"></i> 123</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            {{include file="public/footer.html"}}
+            <script src="{{$public}}/js/admin/plugins/validate/jquery.validate.min.js"></script>
+            <script src="{{$public}}/js/admin/plugins/validate/messages_zh.min.js"></script>
+            <script src="{{$public}}/js/admin/form-validate.min.js"></script>
+        </div>
+        <!--右侧部分结束-->
+    </div>
+
+</body>
+</html>

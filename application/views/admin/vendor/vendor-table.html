@@ -1,0 +1,122 @@
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>供应商名称</th>
+            <th>联系人姓名</th>
+            <th>电话</th>
+            <th>创建时间</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    {{if !empty($vendorlist)}}
+    <tbody>
+    {{foreach $vendorlist as $k=>$v}}
+        <tr>
+            <td class="key_id" tmp-id="{{$v['id']}}">{{$k+1+$offset}}</td>
+            <td>{{$v['vendor_name']}}</td>
+            <td>{{$v['contactor']}}</td>
+            <td>{{$v['phone']}}</td>
+            <td>{{date('Y-m-d H:i:s',$v['add_time'])}}</td>
+            <td>
+                {{if $v['state']=='1'}}<label class="label label-success">正常</label>{{else}}<label class="label label-danger">失效</label>{{/if}}
+            </td>
+            <td>
+                <a data-toggle="modal" class="btn btn-xs btn-outline btn-primary vendor-edit" href="#modal-form-editVendor">编辑</a>
+                {{if $v['state']=='1'}}
+                    <a class="btn btn-xs btn-outline btn-warning vendor-change" href="JavaScript:;" tmp-state=0>禁用</a>
+                {{else}}
+                    <a class="btn btn-xs btn-outline btn-danger vendor-change" href="JavaScript:;" tmp-state=1>恢复</a>
+                {{/if}}
+            </td>
+        </tr>
+    {{/foreach}}
+    {{else}}
+        <tr class="no-records-found t-align">
+            <td colspan="7">没有找到匹配的记录</td>
+        </tr>
+    {{/if}}
+    </tbody>
+</table>
+
+<div id="page-div" class="row">
+    <div class="col-sm-6">
+        <div id="editable_info" class="dataTables_info" role="alert" aria-live="polite" aria-relevant="all">显示 <span class="start">0</span> 到 <span class="end">0</span> 项，共 {{$total}} 项</div>
+    </div>
+    <div class="col-sm-6">
+        <div id="editable_paginate" class="dataTables_paginate paging_simple_numbers">
+            <ul class="pagination">
+                {{if !empty($showpage)}}
+                <li id="page-first" class="paginate_button previous" aria-controls="editable" tabindex="0">
+                    <a href="{{$module}}/vendor/ajaxVendorList/1">首页</a>
+                </li>
+                {{$showpage}}
+                <li id="page-last" class="paginate_button next" aria-controls="editable" tabindex="0">
+                    <a href="{{$module}}/vendor/ajaxVendorList/{{$last_page}}">尾页</a>
+                </li>
+                {{/if}}
+            </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(function(){
+    // 显示从1到10项，共xx项
+    var start = $("#ajaxVendorList table tbody tr:first").find('.key_id').html();
+    var end = $("#ajaxVendorList table tbody tr:last").find('.key_id').html();
+    $("#page-div .start").html(start);
+    $("#page-div .end").html(end);
+
+    // 上一页下一页改为post
+    $("#page-div .paginate_button").click(function (event) {
+        var url = $(this).children('a').attr('href');
+        options = getOptions();
+        posth(url,{options:options},function(r){
+            $("#ajaxVendorList").html(r);
+        });
+        // return false;
+        event.preventDefault();
+    });
+    // 禁用供应商
+    $("#ajaxVendorList .vendor-change").click(function(){
+        var url = module + '/vendor/ajaxChangeVendorStatus';
+        var vendor_id = $(this).parent('td').parent('tr').find('td:first').attr('tmp-id');
+        var state = $(this).attr('tmp-state');
+        $this = $(this);
+        post(url,{id:vendor_id,state:state},function(r){
+            if(r.retcode==true){
+                toastr.success(r.msg);
+                getVendorList();
+            }else{
+                toastr.error(r.msg);
+                getVendorList();
+            }
+        })
+    });
+
+    // 获取编辑分类
+    $("#ajaxVendorList .vendor-edit").click(function(){
+        $("#modal-form-editVendor").find(".reset-btn").trigger('click');
+        $("#modal-form-editVendor").find("input").siblings('span').hide();
+        $("#modal-form-editVendor").find(".form-group").removeClass('has-error');
+        var url = module + '/vendor/getVendorInfo';
+        var vendor_id = $(this).parents('tr').find('td:first').attr('tmp-id');
+        post(url,{id:vendor_id},function(res){
+            if(res.retcode==true){
+                var r = res.data;
+                $("#modal-form-editVendor").find("input[name='id']").val(r.id);
+                $("#modal-form-editVendor").find("input[name='vendor_name']").val(r.vendor_name);
+                $("#modal-form-editVendor").find("input[name='contactor']").val(r.contactor);
+                $("#modal-form-editVendor").find("input[name='phone']").val(r.phone);
+            }else{
+                toastr.error(res.msg);
+            }
+        });
+    });
+
+})
+</script>
+
+
+

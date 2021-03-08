@@ -1,0 +1,397 @@
+<table class="footable table table-stripped toggle-arrow-tiny">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>订单号</th>
+            <th>用户账号</th>
+            <th>所属区域</th>
+            <th>订单金额</th>
+            <th>收货人</th>
+            <th>收货手机号</th>
+            <th>收货地址</th>
+            <th>下单时间</th>
+            <th>操作</th>
+            <th data-hide="all"></th>
+        </tr>
+    </thead>
+    <tbody>
+    	{{if !empty($orderlist)}}
+    	{{foreach $orderlist as $k=>$v}}
+        <tr tmp-id="{{$v['id']}}" tmp-k="{{$k+1+$offset}}">
+            <td class="order_id">{{$k+1+$offset}}</td>
+            <td class="p_order_code"><a href="{{$module}}/order/reviewDts/{{$v['id']}}">{{$v['p_order_code']}}</a></td>
+            <td>{{$v['account']}}</td>
+            <td>{{$v['area_name']}}{{if isset($v['parent_area_name'])}}/{{$v['parent_area_name']}}{{/if}}</td>
+            <td>{{$v['order_amt']}}</td>
+            <td>{{$v['consignee']}}</td>
+            <td>{{$v['consignee_phone']}}</td>
+            <td>{{$v['addr']}}{{$v['details']}}</td>
+            <td>{{$v['add_time']}}</td>
+            <td>
+                <a class="btn btn-xs btn-outline btn-danger" href="{{$module}}/order/reviewDts/{{$v['id']}}">审核</a>
+            </td>
+            <td>
+                <div class="m-b-sm">
+                {{foreach $v['goods'] as $gk=>$gv}}
+                    <img alt="image" src="{{PIC_T_URL}}/211X211/{{$gv['goods_pic']}}" style="width: 100px">
+                {{/foreach}}
+                </div>
+
+            </td>
+        </tr>
+        {{/foreach}}
+       	{{else}}
+       	<tr class="no-records-found t-align">
+			<td colspan="10">没有找到匹配的记录</td>
+		</tr>
+       	{{/if}}
+    </tbody>
+</table>
+
+<div id="page-div" class="row">
+    <div class="col-sm-6">
+        <div id="editable_info" class="dataTables_info" role="alert" aria-live="polite" aria-relevant="all">显示 <span class="start">1</span> 到 <span class="end">10</span> 项，共 {{$total}} 项</div>
+    </div>
+    <div class="col-sm-6">
+        <div id="editable_paginate" class="dataTables_paginate paging_simple_numbers">
+            <ul class="pagination">
+            	{{if !empty($showpage)}}
+                <li id="page-first" class="paginate_button previous" aria-controls="editable" tabindex="0" page="1">
+                	<a href="{{$module}}/order/ajaxReviewList/1">首页</a>
+                </li>
+				{{$showpage}}
+				<li id="page-last" class="paginate_button next" aria-controls="editable" tabindex="0" page="{{$last_page}}">
+                    <a href="{{$module}}/order/ajaxReviewList/{{$last_page}}">尾页</a>
+                </li>
+                {{/if}}
+            </ul>
+        </div>
+    </div>
+</div>
+{{* 发货 *}}
+<div id="modal-form-express" class="modal fade" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-11">
+                        <div class="m-b-md">
+                            <h2>完善物流信息</h2>
+                        </div>
+                    </div>
+                    <div class="col-sm-1">
+                        <button class="close" type="button" data-dismiss="modal">
+                        <span aria-hidden="true">×</span>
+                        <span class="sr-only">Close</span>
+                        </button>
+                    </div>
+                    <div class="col-sm-12">
+
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-content">
+                                <form class="form-horizontal m-t" action="{{$module}}/order/ajaxSendExpress">
+                                    <div class="param"></div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">物流公司：</label>
+                                        <div class="col-sm-8">
+                                            <select class="form-control m-b" name="express_name">
+                                            {{foreach $expresslist as $v}}
+                                            <option value="{{$v.code}}-{{$v.company}}">{{$v.company}}</option>
+                                            {{/foreach}}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-3 control-label">物流单号：</label>
+                                        <div class="col-sm-8">
+                                            <input name="express_no" class="form-control" type="text" aria-required="true" required aria-invalid="true" class="error" />
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-sm-8 col-sm-offset-3">
+                                            <button class="btn btn-primary" type="submit">提交</button>
+                                            <button class="hidden reset-btn" type="reset"></button>
+                                            <button class="btn btn-error" type="reset" data-dismiss="modal">取消</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> 
+{{* 发货 end *}}
+{{* 退货退款 *}}
+<div id="modal-form-cancel" class="modal fade" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-11">
+                        <div class="m-b-md">
+                            <h2><span style="color: #F75D67"><i class="fa fa-exclamation-triangle"></i> 退款/退货</span><span style="font-size:14px;color: #F75D67"> （请核对订单号无误后操作）</span></h2>
+                        </div>
+                    </div>
+                    <div class="col-sm-1">
+                        <button class="close" type="button" data-dismiss="modal">
+                        <span aria-hidden="true">×</span>
+                        <span class="sr-only">Close</span>
+                        </button>
+                    </div>
+                    <div class="col-sm-12">
+                        <div class="ibox float-e-margins" style="margin-bottom: 0px">
+                            <div class="ibox-content">
+                                <form class="form-horizontal m-t" action="{{$module}}/order/updateOrderStatus">
+                                    <div class="param"></div>
+                                    <div class="form-group col-sm-12">
+                                        <h2>订单号：<span class="order_no"></span></h2>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="col-sm-8 col-sm-offset-8">
+                                            <button class="btn btn-primary" type="submit">确定</button>
+                                            <button class="hidden reset-btn" type="reset"></button>
+                                            <button class="btn btn-error" type="reset" data-dismiss="modal">取消</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{* 退货 end *}}
+<script type="text/javascript">
+$(document).ready(function(){$(".footable").footable()});
+
+$(function(){
+    $("#datepicker2").datepicker({
+        autoclose:true,
+        clearBtn:false,
+        todayBtn:true,
+        format:"yyyy-mm-dd"
+    });
+	// 显示从1到10项，共xx项
+	var start = $("#ajaxReviewList table tbody tr:first").attr('tmp-k');
+	var end = $("#ajaxReviewList table tbody tr:last").attr('tmp-k');
+	$("#page-div .start").html(start);
+	$("#page-div .end").html(end);
+
+
+	// 上一页下一页改为post
+	$("#page-div .paginate_button").click(function (event) {
+        var current_page = event.target.dataset.ciPaginationPage;
+        window.history.pushState(null, '', module+'/order/index#/'+current_page);
+	    var url = $(this).children('a').attr('href');
+	    getOrderList(true,url);
+	    // return false;
+	    event.preventDefault();
+	});
+
+    $("#page-last,#page-first").click(function(event){
+        var current_page = $(this).attr('page');
+        window.history.pushState(null, '', module+'/order/index#/'+current_page);
+    });
+
+    // 退货退款
+    $("#ajaxReviewList .cancel-order").click(function(){
+        $("#modal-form-cancel form .param").html('');
+        var id = $(this).parents('tr').attr('tmp-id');
+        var status = $(this).attr('tmp-status');
+        var out_trade_no = $(this).parents('tr').children('.out_trade_no').find('a').html();
+        $("#modal-form-cancel form .order_no").html(out_trade_no);
+        $("#modal-form-cancel form .param").html("<input class='hidden' name='id' value='"+id+"' /><input class='hidden' name='status' value='"+status+"' />");
+    });
+
+    // 退款/退货退款
+    $("#modal-form-cancel form").submit(function(){
+        submitAjax($(this),function(res){
+            $('.close').trigger('click');
+            if(res.retcode===1){
+                layer.alert(res.msg, {
+                    icon: 1,
+                    skin: 'layer-ext-moon',
+                    yes: function(index){
+                        layer.close(index);
+                        getOrderList();
+                    },cancel: function(index){
+                        layer.close(index);
+                        getOrderList();
+                    }
+                })
+            }else{
+                layer.alert(res.msg, {
+                    icon: 2,
+                    skin: 'layer-ext-moon',
+                    yes: function(index){
+                        layer.close(index);
+                        getOrderList();
+                    },cancel: function(index){
+                        layer.close(index);
+                        getOrderList();
+                    }
+                })
+            }
+        })
+        return false;
+    })
+
+    // 发货 填写物流信息
+    $("#ajaxReviewList .send-express").click(function(){
+        $("#modal-form-express form .param").html('');
+        var order_id = $(this).parents('tr').attr('tmp-id');
+        var out_trade_no = $(this).parents('tr').children('.out_trade_no').find('a').html();
+        $("#modal-form-express form .param").html("<input class='hidden' name='id' value='"+order_id+"' /><input class='hidden' name='out_trade_no' value='"+out_trade_no+"' />");
+    });
+
+    // 发货
+    $("#modal-form-express form").submit(function(){
+
+        submitAjax($(this),function(res){
+            $('.close').trigger('click');
+            if(res.retcode===1){
+                layer.alert(res.msg, {
+                    icon: 1,
+                    skin: 'layer-ext-moon',
+                    yes: function(index){
+                        layer.close(index);
+                        getOrderList();
+                    },cancel: function(index){
+                        layer.close(index);
+                        getOrderList();
+                    }
+                })
+            }else if(res.retcode===3002){
+                layer.alert(res.msg, {
+                    icon: 0,
+                    skin: 'layer-ext-moon',
+                    yes: function(index){
+                        layer.close(index);
+                        getOrderList();
+                    },cancel: function(index){
+                        layer.close(index);
+                        getOrderList();
+                    }
+                })
+            }else{
+                layer.alert(res.msg, {
+                    icon: 2,
+                    skin: 'layer-ext-moon',
+                    yes: function(index){
+                        layer.close(index);
+                        getOrderList();
+                    },cancel: function(index){
+                        layer.close(index);
+                        getOrderList();
+                    }
+                })
+            }
+        });
+        return false;
+    });
+
+    // 查看物流
+    $(".get-push-list").click(function(){
+        var exp_no = $(this).attr('tmp-exp-no');
+        var url = module+'/order/ajaxPushList';
+
+        posth(url,{expno:exp_no},function(html){
+            layer.open({
+                type: 1,
+                skin: 'layui-layer-demo', //样式类名
+                closeBtn: 1, //不显示关闭按钮
+                anim: 2,
+                title:'物流轨迹',
+                shadeClose: true, //开启遮罩关闭
+                content: html
+            });
+        });
+
+    });
+    
+    // 确认签收
+    $(".sign-in").click(function(){
+        var $this = $(this);
+        var express_sn = $this.attr('tmp-exp-no');
+        //询问框
+        layer.confirm('您确定要修改为已签收吗？<br><span style="font-size:12px;color:red;"><b>运单号:'+express_sn+'</b></span>', {
+            btn: ['确定','算了'] //按钮
+        }, function(){
+            var id = $this.parents('tr').attr('tmp-id');
+            var url = module +'/order/updateOrderStatus';
+            post(url,{id:id,status:2},function(result){
+                if(result.retcode===1){
+                    layer.alert(result.msg, {
+                        icon: 1,
+                        skin: 'layer-ext-moon',
+                        yes: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        },cancel: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        }
+                    })
+                }else{
+                    layer.alert(result.msg, {
+                        icon: 2,
+                        skin: 'layer-ext-moon',
+                        yes: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        },cancel: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        }
+                    })
+                }
+            });
+        }, function(){
+            layer.msg('操作未执行', {icon: 2});
+        });
+    });
+    
+    // 跟进退款状态
+    $('.checkRefund').click(function(){
+        var id = $(this).parents('tr').attr('tmp-id');
+        var url = module+'/order/checkRefundSingle';
+        post(url,{id:id},function(result){
+            if(result.retcode===1){
+                layer.alert(result.msg, {
+                    icon: 1,
+                    skin: 'layer-ext-moon',
+                    yes: function(index2){
+                        layer.close(index2);
+                        getOrderList();
+                    },cancel: function(index2){
+                        layer.close(index2);
+                        getOrderList();
+                    }
+                })
+            }else{
+                layer.alert(result.msg, {
+                    icon: 2,
+                    skin: 'layer-ext-moon',
+                    yes: function(index2){
+                        layer.close(index2);
+                        getOrderList();
+                    },cancel: function(index2){
+                        layer.close(index2);
+                        getOrderList();
+                    }
+                })
+            }
+        })
+    })
+})
+
+
+</script>
+
+
+

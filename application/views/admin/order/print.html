@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+{{include file="public/header.html"}}
+</head>
+<body>
+<div class="col-sm-12 pt10">
+    
+    <h2 class="font-bold text-center">{{$info['vendor_name']}}</h2>
+    <h3 class="font-bold">订单编号：{{$goods[0]['s_order_code']}}</h2>
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr>
+                <th>序号</th>
+                <th class="col-sm-8">商品名称 / 规格</th>
+                <th class="col-sm-2">发货数量</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{if !empty($goods)}}
+            {{foreach $goods as $k=>$g}}
+            <tr>
+                <td>{{$k+1+$offset}}</td>
+                <td>{{$g['goods_name']}}<br><small class="text-navy">规格：{{$g['spec_name']}}</small></td>
+                <td>{{$g['buy_num']}}</td>
+            </tr>
+            {{/foreach}}
+            {{/if}}
+        </tbody>
+    </table>
+    <div class="modal-footer" style="border-top:0px">
+        <button type="button" class="btn btn-primary print-express">打印</button>
+    </div>
+</div>
+<script src="{{$public}}/js/admin/jquery.min.js"></script>
+<script src="{{$public}}/js/admin/jquery.cookie.js"></script>
+<script src="{{$public}}/layer/layer.js"></script>
+<script type="text/javascript">
+    var index = parent.layer.getFrameIndex(window.name);
+    $(".close-iframe").click(function(){
+        parent.layer.closeAll();
+    })
+
+    $('.print-express').click(function(){
+        parent.layer.close(index);
+        $(this).parent().remove();
+        window.print();
+    })
+</script>
+</body>
+</html>

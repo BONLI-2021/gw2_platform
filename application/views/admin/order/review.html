@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html>
+<head>
+{{include file="public/header.html"}}
+<link href="{{$public}}/css/admin/plugins/select2/select2.min.css" rel="stylesheet" />
+<link href="{{$public}}/css/admin/plugins/datapicker/datepicker3.css" rel="stylesheet">
+<link href="{{$public}}/css/admin/plugins/chosen/chosen.css" rel="stylesheet">
+<link href="{{$public}}/css/admin/plugins/footable/footable.core.css" rel="stylesheet">
+
+<style type="text/css">
+#datepicker2{z-index: 9999}
+</style>
+</head>
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+    <div id="wrapper">
+        {{include file="public/navbar.html"}}
+        <!--右侧部分开始-->
+        <div id="page-wrapper" class="gray-bg dashbard-1">
+                {{include file="public/menu.html"}}
+                <br>
+                <div class="row" id="content-main" style="">
+                    <div class="col-sm-12">
+                        <div class="ibox float-e-margins">
+                            <div class="ibox-title" style="min-height:94px">
+                                <h5>订单列表</h5>
+                                <div class="col-sm-12">
+                                <iframe id="ifile" style="display:none"></iframe>
+                                <form id="down-order-form" action="{{$module}}/order/exportReviewOrderExcel" method="post" tmp-start="{{date('Y-m-01', strtotime('-3 month'))}}" tmp-end="{{date('Y-m-d', time())}}">
+                                    <div class="col-sm-3">
+                                        <div id="datepicker" class="input-daterange input-group input-medium date-picker">
+                                            <input class="input-sm form-control" name="start" value="{{if isset($smarty.session.r_options['start']) && !empty($smarty.session.r_options['start'])}}{{$smarty.session.r_options['start']}}{{else}}{{date('Y-m-01', strtotime('-3 month'))}}{{/if}}" type="text">
+                                            <span class="input-group-addon">到</span>
+                                            <input class="input-sm form-control" name="end" value="{{if isset($smarty.session.r_options['end']) && !empty($smarty.session.r_options['end'])}}{{$smarty.session.r_options['end']}}{{else}}{{date('Y-m-d',time())}}{{/if}}" type="text">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1" style="width: 13%;">
+                                        <select class="form-control m-b js-example-basic-multiple area-choose" name="area_id" tmp-msg="请选择区域">
+                                            <option value="">- 筛选区域 -</option>
+                                            {{foreach $area as $a}}
+                                            <option value="{{$a.id}}">{{$a.area_name}}</option>
+                                            {{/foreach}}
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="input-group m-b">
+                                            <div class="input-group-btn">
+                                                <button class="btn btn-white dropdown-toggle" data-toggle="dropdown" type="button" aria-expanded="false">操作<span class="caret"></span></button>
+                                                <ul class="dropdown-menu search-menu">
+                                                    <li tmp-type="p_order_code" tmp-name="订单号"><a href="javascript:;">按订单号查询</a></li>
+                                                    <li tmp-type="account" tmp-name="用户手机号"><a href="javascript:;">按用户账号查询</a></li>
+                                                </ul>
+                                            </div>
+                                            <input class="form-control" name="search_key" type="hidden">
+                                            <input class="form-control" name="search_val" type="text" placeholder="请输入订单号/账号">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-primary search-btn" type="button">搜索 </button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1 ">
+                                        <div class="input-group m-b">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-error" type="reset">重置</button>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <button class="btn btn-success export-excel" type="submit">
+                                        <i class="fa fa-download"></i>
+                                        <span class="bold">导出</span>
+                                        </button>
+                                        <button id="load-btn" class="btn btn-default hidden" type="submit"><img src="{{$public}}/images/admin/loading.gif"/>  玩命加载中</button>
+                                    </div>
+                                </form>
+                                </div>
+                            </div>
+                            <div id="ajaxReviewList" class="ibox-content">
+                                
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            {{include file="public/footer.html"}}
+            <script src="{{$public}}/js/admin/plugins/chosen/chosen.jquery.js"></script>
+            <script src="{{$public}}/js/admin/plugins/select2/select2.min.js"></script>
+            <script src="{{$public}}/js/admin/plugins/footable/footable.all.min.js"></script>
+            <script src="{{$public}}/js/admin/plugins/datapicker/bootstrap-datepicker.js"></script>
+            <script type="text/javascript">
+            
+                $(function(){
+
+                    $("#datepicker").datepicker({
+                        autoclose:true,
+                        clearBtn:false,
+                        todayBtn:true,
+                        format:"yyyy-mm-dd"
+                    });
+
+                    $(document).ready(function() {
+                        $('.js-example-basic-multiple').select2();
+                    });
+
+                    // 初始化 获取列表
+                    getOrderList(true);
+
+                    // 导出
+                    $("#down-order-form").submit(function(){
+                        var start = $("#datepicker input[name='start']").val();
+                        var end = $("#datepicker input[name='end']").val();
+                        var search_key = $("#down-order-form input[name='search_key']").val();
+                        var search_val = $("#down-order-form input[name='search_val']").val();
+                     
+                        // 区域
+                        var area_id = $("select[name='area_id']").val();
+                        var url = module + '/order/exportReviewOrderExcel';
+                        mask = false;
+                        $.ajax({
+                            async:false,
+                            type:'POST',
+                            data:{start:start,end:end,search_key:search_key,search_val:search_val,area_id:area_id},
+                            url:url,
+                            beforeSend : function(XMLHttpRequest){
+                                // 发送请求前
+                                $("#load-btn").removeClass('hidden');
+                                $(".export-excel").addClass('hidden');
+                                loading = layer.msg('正在导出中, 请稍等', {  //通过layer插件来进行提示正在加载
+                                    icon: 16,
+                                    shade: [0.5,'#000']
+                                });
+                            },
+                            complete : function(XMLHttpRequest, r){
+                                // 请求完成后回调函数
+                                layer.close(loading);
+                                $("#load-btn").addClass('hidden');
+                                $(".export-excel").removeClass('hidden');
+                            },
+                            success : function(res){
+                                if(res.retcode=='3001'){
+                                    mark = false;
+                                    toastr.info(res.msg);
+                                }else{
+                                    mark = true
+                                }
+
+                            },
+                            error : function(){
+                                mark = false;
+                            }
+                        });
+                        return mark;
+                    })
+
+                    $("#down-order-form .search-menu li").click(function(){
+                        $(this).parent().find('li').removeClass('active');
+                        $(this).addClass('active');
+
+                        var search_key = $(this).attr('tmp-type');
+                        var search_name = $(this).attr('tmp-name');
+                        $("#down-order-form input[name='search_key']").val(search_key);
+                        $("#down-order-form input[name='search_val']").attr('placeholder','请输入'+search_name);
+                    });
+
+                    // 搜索
+                    $("#down-order-form .search-btn").click(function(){
+                        getOrderList(false);
+                    });
+                   
+                    // 重置
+                    $("#down-order-form button[type='reset']").click(function(){
+
+                        $("#down-order-form input[name='search_key']").val('');
+                        $("#down-order-form input[name='search_val']").val('');
+                        
+                        $("#down-order-form .search-menu li").removeClass('active');
+                        
+                        // 重置区域
+                        $("#down-order-form select[name='area_id'] option:first").prop('selected','selected');
+                        $("select[name='area_id']").next().find('.select2-selection__rendered').html('- 筛选区域 -');
+
+                        var start = $("#down-order-form").attr('tmp-start');
+                        var end = $("#down-order-form").attr('tmp-end');
+                        $("#datepicker input[name='start']").val(start);
+                        $("#datepicker input[name='end']").val(end);
+
+                        $.get(module+'/order/orderClear');
+                        getOrderList(false);
+                    })
+
+                    // 战区分区选择条件
+                    $(".area-choose").on('change',function(){
+                        getOrderList(false);
+                    });
+
+                })
+               
+                // 获取订单列表
+                function getOrderList(type,url=null){
+                    // 订单日期
+                    var start = $("#datepicker input[name='start']").val();
+                    var end = $("#datepicker input[name='end']").val();
+
+                    // 关键字查询
+                    var search_key = $("#down-order-form input[name='search_key']").val();
+                    var search_val = $("#down-order-form input[name='search_val']").val();
+                    if(search_val != '' && search_key ==''){
+                        layer.msg('请先指定关键字类型');
+                        return false;
+                    }
+
+                    // 区域框
+                    var area_id = $("#down-order-form").find("select[name='area_id']").find('option:selected').val();
+
+                    if(url==null){
+                        var u = document.location.toString();
+                        var current_page = u.split("#/")[1];
+                        if(current_page==undefined || current_page=='undefined'){
+                            current_page='';
+                        }
+                        if(type==false){
+                            url = u.split("#/")[0];
+                            current_page='';
+                            window.history.pushState(null, '', url);
+                        }
+                        url = module + '/order/ajaxReviewList/'+current_page;
+                    }
+
+                    posth(url,{start:start,end:end,search_key:search_key,search_val:search_val,area_id:area_id},function(res){
+                        $("#ajaxReviewList").html(res);
+                    });
+                }
+
+            </script>
+        </div>
+        <!--右侧部分结束-->
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+{{include file="public/header.html"}}
+<link rel="stylesheet" href="{{$public}}/css/admin/plugins/switchery/switchery.css">
+</head>
+<style type="text/css">
+.input-order{padding: 5px 10px;width: 60px;text-align: center;border:0;}
+.order-on{border:1px solid #18A689;background: #afd3cb;}
+.order-off{border:0px;background: #fff;}
+</style>
+<body class="fixed-sidebar full-height-layout gray-bg" style="overflow:hidden">
+    <div id="wrapper">
+        {{include file="public/navbar.html"}}
+        <!--右侧部分开始-->
+        <div id="page-wrapper" class="gray-bg dashbard-1">
+            {{include file="public/menu.html"}}
+            <br>
+            <div class="row" id="content-main">
+                <div class="col-sm-10">
+                    <div class="ibox float-e-margins">
+                        <div class="ibox-title" style="min-height:94px">
+                            <h5>分类列表</h5>
+                            <form id="down-cate-form" action="javascript:;" method="post" class="col-sm-12">
+                                
+                                {{*<div class="col-sm-1">
+                                    <div class="input-group m-b">
+                                        <div class="input-group-btn">
+                                            <button class="btn btn-white dropdown-toggle" data-toggle="dropdown" type="button" aria-expanded="false"><span>分类状态</span><span class="caret"></span></button>
+                                            <ul id="cate-status-menu" class="dropdown-menu min-w50">
+                                                <li tmp-type="c_status" tmp-value="1"><a href="javascript:;">正常</a></li>
+                                                <li tmp-type="c_status" tmp-value="0"><a href="javascript:;">禁用</a></li>
+                                                <li tmp-type="" tmp-value=""><a href="javascript:;">清除筛选</a></li>
+                                                <div class="hidden c_status_ajax"></div>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-sm-5 ml20">
+                                    <div class="input-group m-b">
+                                        <div class="input-group-btn">
+                                            <button class="btn btn-white dropdown-toggle" data-toggle="dropdown" type="button" aria-expanded="false">按分类名查询</button>
+                                        </div>
+                                        <input class="form-control" name="content" type="text" placeholder="请输入分类名" value="{{if isset($smarty.session.options['search_val'])}}{{$smarty.session.options['search_val']}}{{/if}}">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-primary search-btn" type="button">搜索 </button>
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-1 ">
+                                    <div class="input-group m-b">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-error" type="reset">重置</button>
+                                        </span>
+                                    </div>
+                                </div>*}}
+
+                                <div class="col-sm-2" style="float: right;">
+                                    <div class="input-group m-b">
+                                        <span class="input-group-btn">
+                                            <a class="btn btn-success add-cate"  data-toggle="modal" href="#modal-form-cate" tmp-level="1" tmp-cateid="0">添加一级分类</a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div id="ajaxCateList" class="ibox-content"></div>
+                    </div>
+                </div>
+            </div>
+            {{include file="public/footer.html"}}
+        </div>
+        <!--右侧部分结束-->
+    </div>
+    <script src="{{$public}}/js/admin/plugins/switchery/switchery.js"></script>
+</body>
+<script type="text/javascript">
+    
+$(function(){
+
+    // 初始化列表
+    getCateList();
+
+   
+    
+    
+
+
+})
+
+// 获取订单列表
+function getCateList(url=null){
+    var search_val = $("#down-cate-form input[name='content']").val();
+    // 状态
+    var status_n = $("#cate-status-menu .c_status_ajax").find("input[name='status']").val();
+    var status_v = $("#cate-status-menu .c_status_ajax").find("input[name='value']").val();
+    if(status_n=='undefined' || status_n=='') o_status_n = null;
+    if(status_v=='undefined' || status_v=='') o_status_v = null;
+   
+    if(url==null) url = module + '/category/ajaxCateList';
+
+    posth(url,{search_val:search_val,status_n:status_n,status_v:status_v},function(res){
+        $("#ajaxCateList").html(res);
+    });
+}
+
+</script>
+</html>

@@ -1,0 +1,244 @@
+<table class="table table-bordered table-hover" data-click-to-select='true'>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>订单号</th>
+            <th>用户账号</th>
+            <th>所属区域</th>
+            <th>供应商</th>
+            <th>订单金额</th>
+            <th>收货人</th>
+            <th>收货手机号</th>
+            <th>收货地址</th>
+            <th>收款状态</th>
+            <th>下单时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+    	{{if !empty($orderlist)}}
+    	{{foreach $orderlist as $k=>$v}}
+        <tr tmp-id="{{$v['id']}}" tmp-k="{{$k+1+$offset}}">
+            <td class="order_id">{{$k+1+$offset}}</td>
+            <td class="s_order_code"><a href="{{$module}}/order/vendorOrderDts/{{$v['id']}}">{{$v['s_order_code']}}</a></td>
+            <td>{{$v['account']}}</td>
+            <td>{{$v['area_name']}}{{if isset($v['parent_area_name'])}}/{{$v['parent_area_name']}}{{/if}}</td>
+            <td>{{$v['vendor_name']}}</td>
+            <td>{{$v['s_order_amt']}}</td>
+            <td>{{$v['consignee']}}</td>
+            <td>{{$v['consignee_phone']}}</td>
+            <td>{{$v['addr']}}{{$v['details']}}</td>
+            <td>
+                {{if $v['receive_money']==1}}
+                    <span class="text-default">已收款</span>
+                {{else}}
+                    <span class="text-warning">未收款</span>
+                {{/if}}
+            </td>
+            <td>{{$v['add_time']}}</td>
+            <td>
+                <a class="btn btn-xs btn-outline btn-primary" href="{{$module}}/order/vendorOrderDts/{{$v['id']}}">查看</a>
+                {{if $smarty.session.login['admin_type']==2}}
+                    {{if $v['review_status']==4}}
+                        {{if $v['order_status']==0}}
+                            <a class="btn btn-xs btn-outline btn-success send-express" href="javascript:void(0);">发货</a>
+                        {{else}}
+                            <a class="btn btn-xs btn-outline btn-default print-express" href="javascript:void(0);">打印发货单</a>
+                        {{/if}}
+                        {{if $v['receive_money']==0}}
+                            <a class="btn btn-xs btn-outline btn-warning do-receive" href="javascript:void(0);">收款确认</a>
+                        {{/if}}
+                    {{/if}}
+                    
+                {{/if}}
+            </td>
+        </tr>
+        {{/foreach}}
+       	{{else}}
+       	<tr class="no-records-found t-align">
+			<td colspan="14">没有找到匹配的记录</td>
+		</tr>
+       	{{/if}}
+    </tbody>
+</table>
+
+<div id="page-div" class="row">
+    <div class="col-sm-6">
+        <div id="editable_info" class="dataTables_info" role="alert" aria-live="polite" aria-relevant="all">显示 <span class="start">1</span> 到 <span class="end">10</span> 项，共 {{$total}} 项</div>
+    </div>
+    <div class="col-sm-6">
+        <div id="editable_paginate" class="dataTables_paginate paging_simple_numbers">
+            <ul class="pagination">
+            	{{if !empty($showpage)}}
+                <li id="page-first" class="paginate_button previous" aria-controls="editable" tabindex="0" page="1">
+                	<a href="{{$module}}/order/ajaxVendorOrderList/1">首页</a>
+                </li>
+				{{$showpage}}
+				<li id="page-last" class="paginate_button next" aria-controls="editable" tabindex="0" page="{{$last_page}}">
+                    <a href="{{$module}}/order/ajaxVendorOrderList/{{$last_page}}">尾页</a>
+                </li>
+                {{/if}}
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+$(function(){
+    $("#datepicker2").datepicker({
+        autoclose:true,
+        clearBtn:false,
+        todayBtn:true,
+        format:"yyyy-mm-dd"
+    });
+	// 显示从1到10项，共xx项
+	var start = $("#ajaxVendorOrderList table tbody tr:first").attr('tmp-k');
+	var end = $("#ajaxVendorOrderList table tbody tr:last").attr('tmp-k');
+	$("#page-div .start").html(start);
+	$("#page-div .end").html(end);
+
+
+	// 上一页下一页改为post
+	$("#page-div .paginate_button").click(function (event) {
+        var current_page = event.target.dataset.ciPaginationPage;
+        window.history.pushState(null, '', module+'/order/orderVendor#/'+current_page);
+	    var url = $(this).children('a').attr('href');
+	    getOrderList(true,url);
+	    // return false;
+	    event.preventDefault();
+	});
+
+    $("#page-last,#page-first").click(function(event){
+        var current_page = $(this).attr('page');
+        window.history.pushState(null, '', module+'/order/orderVendor#/'+current_page);
+    });
+
+    // 确认收款
+    $("#ajaxVendorOrderList .do-receive").click(function(){
+        var id = $(this).parents('tr').attr('tmp-id');
+        //询问框
+        parent.layer.confirm('你确认收到此订单货款？', {
+            btn: ['确认','没有'], //按钮
+            shade: false //不显示遮罩
+        }, function(){
+            var url = module+'/order/doReceive';
+            post(url,{id:id},function(r){
+                if(r.retcode===1){
+                    parent.layer.msg(r.msg, {time:2000,icon: 1},function(){
+                        window.location.reload();
+                    });
+                }else{
+                    parent.layer.msg(r.msg, {icon: 2});
+                }
+            })
+        }, function(){
+            layer.closeAll();
+        });
+    });
+
+    // 发货 填写物流信息
+    $("#ajaxVendorOrderList .send-express").click(function(){
+        var s_order_code = $(this).parents('tr').find('.s_order_code a').html();
+        var sid = $(this).parents('tr').attr('tmp-id');
+        var url = module + '/order/vendorOrderGoods/'+sid;
+        
+        layer.open({
+            type: 2,
+            title: s_order_code+' 订单发货信息：',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['60%', '90%'],
+            content: url,
+            end:function(){
+                getOrderList();
+            }
+        });
+    });
+
+    // 打印发货单    
+    $("#ajaxVendorOrderList .print-express").click(function(){
+        var sid = $(this).parents('tr').attr('tmp-id');
+        var s_order_code = $(this).parents('tr').find('.s_order_code a').html();
+        var url = module + '/order/printExpress/'+sid;
+        layer.open({
+            type:2,
+            title: s_order_code+' 发货单',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['100%', '100%'],
+            content: url
+        });
+    })
+
+    // 查看物流
+    $(".get-push-list").click(function(){
+        var exp_no = $(this).attr('tmp-exp-no');
+        var url = module+'/order/ajaxPushList';
+
+        posth(url,{expno:exp_no},function(html){
+            layer.open({
+                type: 1,
+                skin: 'layui-layer-demo', //样式类名
+                closeBtn: 1, //不显示关闭按钮
+                anim: 2,
+                title:'物流轨迹',
+                shadeClose: true, //开启遮罩关闭
+                content: html
+            });
+        });
+
+    });
+    
+    // 确认签收
+    $(".sign-in").click(function(){
+        var $this = $(this);
+        var express_sn = $this.attr('tmp-exp-no');
+        //询问框
+        layer.confirm('您确定要修改为已签收吗？<br><span style="font-size:12px;color:red;"><b>运单号:'+express_sn+'</b></span>', {
+            btn: ['确定','算了'] //按钮
+        }, function(){
+            var id = $this.parents('tr').attr('tmp-id');
+            var url = module +'/order/updateOrderStatus';
+            post(url,{id:id,status:2},function(result){
+                if(result.retcode===1){
+                    layer.alert(result.msg, {
+                        icon: 1,
+                        skin: 'layer-ext-moon',
+                        yes: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        },cancel: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        }
+                    })
+                }else{
+                    layer.alert(result.msg, {
+                        icon: 2,
+                        skin: 'layer-ext-moon',
+                        yes: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        },cancel: function(index2){
+                            layer.close(index2);
+                            getOrderList();
+                        }
+                    })
+                }
+            });
+        }, function(){
+            layer.msg('操作未执行', {icon: 2});
+        });
+    });
+
+
+})
+
+
+</script>
+
+
+
