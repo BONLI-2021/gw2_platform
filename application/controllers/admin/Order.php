@@ -90,7 +90,7 @@ class Order extends Admin_Controller {
         // echo "<pre>";
         // var_dump($list);exit;
         $this->load->library('pagination');
-        $config = $this->myPagination(BASEURL.'admin.php/order/ajaxOrderList',$count);
+        $config = $this->myPagination(BASEURL.'admin/order/ajaxOrderList',$count);
         $this->pagination->initialize($config);
         $page = $this->pagination->create_links();
         // 尾页
@@ -240,7 +240,7 @@ class Order extends Admin_Controller {
         // echo "<pre>";
         // var_dump($list);exit;
         $this->load->library('pagination');
-        $config = $this->myPagination(BASEURL.'admin.php/order/ajaxVendorOrderList',$count);
+        $config = $this->myPagination(BASEURL.'admin/order/ajaxVendorOrderList',$count);
         $this->pagination->initialize($config);
         $page = $this->pagination->create_links();
         // 尾页
@@ -539,7 +539,7 @@ class Order extends Admin_Controller {
         // echo "<pre>";
         // var_dump($list);exit;
         $this->load->library('pagination');
-        $config = $this->myPagination(BASEURL.'admin.php/order/ajaxReviewList',$count);
+        $config = $this->myPagination(BASEURL.'admin/order/ajaxReviewList',$count);
         $this->pagination->initialize($config);
         $page = $this->pagination->create_links();
         // 尾页

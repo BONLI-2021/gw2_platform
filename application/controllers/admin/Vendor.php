@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Vendor extends MY_Controller {
+class Vendor extends Admin_Controller {
 
     protected $isNeedLogin = TRUE;
 	public function __construct(){
@@ -43,7 +43,7 @@ class Vendor extends MY_Controller {
 		$offset = $result['offset'];
 
 		$this->load->library('pagination');
-		$config = $this->myPagination(BASEURL.'admin.php/vendor/ajaxVendorList',$count);
+		$config = $this->myPagination(BASEURL.'admin/vendor/ajaxVendorList',$count);
 		$this->pagination->initialize($config);
 		$page = $this->pagination->create_links();
 		// 尾页

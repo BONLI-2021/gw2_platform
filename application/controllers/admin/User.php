@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class User extends MY_Controller {
+class User extends Admin_Controller {
 
     protected $isNeedLogin = TRUE;
 	public function __construct(){
@@ -11,13 +11,10 @@ class User extends MY_Controller {
 	/**
 	 * index
 	 * 用户管理
-	 * @author sam
+	 * @author lyne
 	 */
 	public function index(){
-		$this->load->model('order_model');
-        $area = $this->order_model->getAreaList();
 
-        $this->assign('area',$area);
 		$this->assign('title','用户列表');
 		$this->display('user/index.html');
 	}
@@ -25,7 +22,7 @@ class User extends MY_Controller {
 	/**
 	 * ajaxUserList
 	 * 动态添加用户列表
-	 * @author sam
+	 * @author lyne
 	 */
 	public function ajaxUserList(){
 		$options = $this->input->post('options');
@@ -41,11 +38,7 @@ class User extends MY_Controller {
 			}else{
 				$tmp_options['search']=null;
 			}
-			if($options['area_id']){
-				$tmp_options['area_id'] = "u.area_id='".$_SESSION['u_options']['area_id']."'";
-			}else{
-				$tmp_options['area_id']=null;
-			}
+			
 		}
 		
 		$result = $this->user_model->selectUserList($tmp_options);
@@ -54,7 +47,7 @@ class User extends MY_Controller {
 		$offset = $result['offset'];
 		
 		$this->load->library('pagination');
-		$config = $this->myPagination(BASEURL.'admin.php/user/ajaxUserList',$count);
+		$config = $this->myPagination(BASEURL.'admin/user/ajaxUserList',$count);
 		$this->pagination->initialize($config);
 		$page = $this->pagination->create_links();
 		// 尾页
@@ -89,7 +82,6 @@ class User extends MY_Controller {
 				$this->ajaxReturn(['retcode'=>1002,'data'=>[],'msg'=>'失败！邮箱已存在']);
 			}
 		}
-		$data['area_type'] = $this->user_model->getAreaInfo($data['area_id'])['type'];
 		$data['password'] = md5('Admin@123GW');
 		$data['add_time'] = time();
 		$res = $this->user_model->addNewUser($data);
@@ -187,7 +179,7 @@ class User extends MY_Controller {
 	 * @author sam
 	 */
 	public function shoppingList(){
-		$id = $this->uri->segment(3);
+		$id = $this->uri->segment(4);
 		$this->assign('title','消费列表');
 		$this->assign('id',$id);
 		$this->display('user/shopping-list.html');
@@ -219,7 +211,7 @@ class User extends MY_Controller {
 		$count = $result['count'];
 		$offset = $result['offset'];
 		$this->load->library('pagination');
-		$config = $this->myPagination(BASEURL.'admin.php/user/ajaxShoppingList',$count);
+		$config = $this->myPagination(BASEURL.'admin/user/ajaxShoppingList',$count);
 		$this->pagination->initialize($config);
 		$page = $this->pagination->create_links();
 		// 尾页
@@ -258,7 +250,6 @@ class User extends MY_Controller {
 				$exportlist[$k]['key'] = $k+1;
 				$exportlist[$k]['account'] = $v['account'];
 				$exportlist[$k]['user_name'] = $v['user_name'];
-				$exportlist[$k]['area_name'] = $v['area_name'];
 				$exportlist[$k]['add_time'] = date("Y-m-d H:i:s",$v['add_time']);
 				switch ($v['deal_type']) {
 					case 1:
@@ -276,23 +267,20 @@ class User extends MY_Controller {
 				}
 				$exportlist[$k]['deal_amount'] = $v['deal_amount'];
 				$exportlist[$k]['admin_account'] = $v['admin_account'];
-				$exportlist[$k]['admin_area'] = '总部';
 				$exportlist[$k]['explain'] = $v['explain'];
 			}
 			$headerTitle[0][] = '序号';
 			$headerTitle[0][] = '账号';
 			$headerTitle[0][] = '用户名';
-			$headerTitle[0][] = '所属区域';
 			$headerTitle[0][] = '变更时间';
 			$headerTitle[0][] = '类型';
 			$headerTitle[0][] = '金额';
 			$headerTitle[0][] = '操作账户';
-			$headerTitle[0][] = '操作账户所属区域';
 			$headerTitle[0][] = '操作缘由';
 			$list = array_merge($headerTitle,$exportlist);
             // echo "<pre>";
             // var_dump($list);exit;
-            $objPHPExcel = $this->writerExcel2($this->ci_excel,0,'消费明细数据',$list);
+            $objPHPExcel = $this->writerExcel($this->ci_excel,0,'消费明细数据',$list);
             $filename = '用户'.$list[0]['account'].":消费明细".date('m.d',time());
 
             header('Content-Type: application/vnd.ms-excel');
@@ -326,11 +314,6 @@ class User extends MY_Controller {
    		$data['start'] = strtotime($data['start'].' 00:00:00');
    		$data['end'] = strtotime($data['end'].' 23:59:59');
    		$tmp_options['time'] = 'u.add_time >='.$data['start'].' and u.add_time <='.$data['end'];
-   		if(!empty($data['area_id'])){
-   			$tmp_options['area_id'] = 'u.area_id ='.$data['area_id'];
-   		}else{
-   			$tmp_options['area_id'] = null;
-   		}
 
    		if(!empty($data['search_val'])){
    			$tmp_options['search'] = "u.account like '%".$data['search_val']."%' or u.user_name like '%".$data['search_val']."%' ";
@@ -343,10 +326,7 @@ class User extends MY_Controller {
 
 			$exportlist = array();
 			foreach ($list as $k => &$v) {
-				$p_area_name = $this->user_model->getAreaInfo($v['pid'])['area_name'];
 				$exportlist[$k]['key'] = $k+1;
-				$exportlist[$k]['p_area_name'] = $p_area_name;
-				$exportlist[$k]['area_name'] = $v['area_name'];
 				$exportlist[$k]['account'] = $v['account'];
 				$exportlist[$k]['email'] = $v['email'];
 				$exportlist[$k]['recharge_amount'] = $v['recharge_amount'];
@@ -354,8 +334,6 @@ class User extends MY_Controller {
 				$exportlist[$k]['balance'] = $v['balance'];
 			}
 			$headerTitle[0][] = '序号';
-			$headerTitle[0][] = '所属上级区域';
-			$headerTitle[0][] = '所属区域';
 			$headerTitle[0][] = '账号';
 			$headerTitle[0][] = '邮箱';
 			$headerTitle[0][] = '总充值金额';
@@ -364,7 +342,7 @@ class User extends MY_Controller {
 			$list = array_merge($headerTitle,$exportlist);
             // echo "<pre>";
             // var_dump($list);exit;
-            $objPHPExcel = $this->writerExcel2($this->ci_excel,0,'账户明细数据',$list);
+            $objPHPExcel = $this->writerExcel($this->ci_excel,0,'账户明细数据',$list);
             $filename = "账户明细表".date('m.d',$data['start']).'-'.date('m.d',$data['end']);
 
             header('Content-Type: application/vnd.ms-excel');
@@ -398,11 +376,6 @@ class User extends MY_Controller {
    		$data['start'] = strtotime($data['start'].' 00:00:00');
    		$data['end'] = strtotime($data['end'].' 23:59:59');
    		$tmp_options['time'] = 'u.add_time >='.$data['start'].' and u.add_time <='.$data['end'];
-   		if(!empty($data['area_id'])){
-   			$tmp_options['area_id'] = 'u.area_id ='.$data['area_id'];
-   		}else{
-   			$tmp_options['area_id'] = null;
-   		}
 
    		if(!empty($data['search_val'])){
    			$tmp_options['search'] = "u.account like '%".$data['search_val']."%' or u.user_name like '%".$data['search_val']."%' ";
@@ -417,31 +390,24 @@ class User extends MY_Controller {
    		if(!empty($list)){
 			$exportlist = array();
 			foreach ($list as $k => &$v) {
-				$p_area_name = $this->user_model->getAreaInfo($v['pid'])['area_name'];
 				$exportlist[$k]['key'] = $k+1;
-				$exportlist[$k]['p_area_name'] = $p_area_name;
-				$exportlist[$k]['area_name'] = $v['area_name'];
 				$exportlist[$k]['account'] = $v['account'];
 				$exportlist[$k]['deal_amount'] = $v['deal_amount'];
 				$exportlist[$k]['add_time'] = date("Y-m-d H:i:s",$v['add_time']);
 				$exportlist[$k]['explain'] = $v['explain'];
 				$exportlist[$k]['admin_account'] = $v['admin_account'];
-				$exportlist[$k]['admin_area'] = '总部';
 			}
 			$headerTitle[0][] = '序号';
-			$headerTitle[0][] = '所属上级区域';
-			$headerTitle[0][] = '所属区域';
 			$headerTitle[0][] = '账号';
 			$headerTitle[0][] = '充值金额';
 			$headerTitle[0][] = '充值时间';
 			$headerTitle[0][] = '充值备注';
 			$headerTitle[0][] = '操作账户';
-			$headerTitle[0][] = '操作账户所属区域';
 			$list = array_merge($headerTitle,$exportlist);
 			
             // echo "<pre>";
             // var_dump($list);exit;
-            $objPHPExcel = $this->writerExcel2($this->ci_excel,0,'账户充值明细数据',$list);
+            $objPHPExcel = $this->writerExcel($this->ci_excel,0,'账户充值明细数据',$list);
             $filename = "用户充值明细".date('m.d',$data['start']).'-'.date('m.d',$data['end']);
 
             header('Content-Type: application/vnd.ms-excel');
@@ -475,11 +441,6 @@ class User extends MY_Controller {
    		$data['start'] = strtotime($data['start'].' 00:00:00');
    		$data['end'] = strtotime($data['end'].' 23:59:59');
    		$tmp_options['time'] = 'u.add_time >='.$data['start'].' and u.add_time <='.$data['end'];
-   		if(!empty($data['area_id'])){
-   			$tmp_options['area_id'] = 'u.area_id ='.$data['area_id'];
-   		}else{
-   			$tmp_options['area_id'] = null;
-   		}
 
    		if(!empty($data['search_val'])){
    			$tmp_options['search'] = "u.account like '%".$data['search_val']."%' or u.user_name like '%".$data['search_val']."%' ";
@@ -492,35 +453,26 @@ class User extends MY_Controller {
    		// var_dump($list);
    		
    		if(!empty($list)){
-   			foreach ($list as $k => &$v) {
-	   			$this->manageOrder($v);
-	   		}
+   			
 			$exportlist = array();
 			foreach ($list as $k => &$v) {
-				$p_area_name = $this->user_model->getAreaInfo($v['pid'])['area_name'];
 				$exportlist[$k]['key'] = $k+1;
-				$exportlist[$k]['p_area_name'] = $p_area_name;
-				$exportlist[$k]['area_name'] = $v['area_name'];
 				$exportlist[$k]['account'] = $v['account'];
 				$exportlist[$k]['p_order_code'] = $v['p_order_code'];
 				$exportlist[$k]['order_amt'] = $v['order_amt'];
-				$exportlist[$k]['review_status'] = $v['review_status_v'];
-				$exportlist[$k]['area_name'] = $v['area_name'];
-				$exportlist[$k]['add_time'] = $v['add_time'];
+				// $exportlist[$k]['review_status'] = $v['review_status_v'];
+				$exportlist[$k]['add_time'] = date('Y-m-d H:i:s',$v['add_time']);
 			}
 			$headerTitle[0][] = '序号';
-			$headerTitle[0][] = '所属上级区域';
-			$headerTitle[0][] = '所属区域';
 			$headerTitle[0][] = '账号';
 			$headerTitle[0][] = '订单号';
 			$headerTitle[0][] = '订单金额';
-			$headerTitle[0][] = '审核状态';
-			$headerTitle[0][] = '所属区域';
+			// $headerTitle[0][] = '审核状态';
 			$headerTitle[0][] = '下单时间';
 			$list = array_merge($headerTitle,$exportlist);
             // echo "<pre>";
             // var_dump($list);exit;
-            $objPHPExcel = $this->writerExcel2($this->ci_excel,0,'账户消费明细数据',$list);
+            $objPHPExcel = $this->writerExcel($this->ci_excel,0,'账户消费明细数据',$list);
             $filename = "用户消费明细".date('m.d',$data['start']).'-'.date('m.d',$data['end']);
 
             header('Content-Type: application/vnd.ms-excel');
@@ -554,11 +506,6 @@ class User extends MY_Controller {
    		$data['start'] = strtotime($data['start'].' 00:00:00');
    		$data['end'] = strtotime($data['end'].' 23:59:59');
    		$tmp_options['time'] = 'u.add_time >='.$data['start'].' and u.add_time <='.$data['end'];
-   		if(!empty($data['area_id'])){
-   			$tmp_options['area_id'] = 'u.area_id ='.$data['area_id'];
-   		}else{
-   			$tmp_options['area_id'] = null;
-   		}
 
    		if(!empty($data['search_val'])){
    			$tmp_options['search'] = "u.account like '%".$data['search_val']."%' or u.user_name like '%".$data['search_val']."%' ";
@@ -573,31 +520,24 @@ class User extends MY_Controller {
    		if(!empty($list)){
 			$exportlist = array();
 			foreach ($list as $k => &$v) {
-				$p_area_name = $this->user_model->getAreaInfo($v['pid'])['area_name'];
 				$exportlist[$k]['key'] = $k+1;
-				$exportlist[$k]['p_area_name'] = $p_area_name;
-				$exportlist[$k]['area_name'] = $v['area_name'];
 				$exportlist[$k]['account'] = $v['account'];
 				$exportlist[$k]['deal_amount'] = $v['deal_amount'];
 				$exportlist[$k]['add_time'] = date("Y-m-d H:i:s",$v['add_time']);
 				$exportlist[$k]['explain'] = $v['explain'];
 				$exportlist[$k]['admin_account'] = $v['admin_account'];
-				$exportlist[$k]['admin_area'] = '总部';
 			}
 			$headerTitle[0][] = '序号';
-			$headerTitle[0][] = '所属上级区域';
-			$headerTitle[0][] = '所属区域';
 			$headerTitle[0][] = '账号';
 			$headerTitle[0][] = '充值金额';
 			$headerTitle[0][] = '充值时间';
 			$headerTitle[0][] = '充值备注';
 			$headerTitle[0][] = '操作账户';
-			$headerTitle[0][] = '操作账户所属区域';
 			$list = array_merge($headerTitle,$exportlist);
 			
             // echo "<pre>";
             // var_dump($list);exit;
-            $objPHPExcel = $this->writerExcel2($this->ci_excel,0,'账户扣减明细数据',$list);
+            $objPHPExcel = $this->writerExcel($this->ci_excel,0,'账户扣减明细数据',$list);
             $filename = "用户扣减明细".date('m.d',$data['start']).'-'.date('m.d',$data['end']);
 
             header('Content-Type: application/vnd.ms-excel');

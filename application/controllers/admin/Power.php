@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Power extends MY_Controller {
+class Power extends Admin_Controller {
     
     protected $isNeedLogin = TRUE;
 
@@ -75,7 +75,7 @@ class Power extends MY_Controller {
 		$offset = $result['offset'];
 		
 		$this->load->library('pagination');
-		$config = $this->myPagination(base_url().'admin.php/power/ajaxAdminList',$count);
+		$config = $this->myPagination(base_url().'admin/power/ajaxAdminList',$count);
 		$this->pagination->initialize($config);
 		$page = $this->pagination->create_links();
 		// 尾页
@@ -180,7 +180,7 @@ class Power extends MY_Controller {
 		$offset = $result['offset'];
 
 		$this->load->library('pagination');
-		$config = $this->myPagination(base_url().'admin.php/power/ajaxMenuList',$count);
+		$config = $this->myPagination(base_url().'admin/power/ajaxMenuList',$count);
 		$this->pagination->initialize($config);
 		$page = $this->pagination->create_links();
 		// 尾页
@@ -276,7 +276,7 @@ class Power extends MY_Controller {
 		$offset = $result['offset'];
 		
 		$this->load->library('pagination');
-		$config = $this->myPagination(base_url().'admin.php/power/ajaxRoleList',$count);
+		$config = $this->myPagination(base_url().'admin/power/ajaxRoleList',$count);
 		$this->pagination->initialize($config);
 		$page = $this->pagination->create_links();
 		// 尾页

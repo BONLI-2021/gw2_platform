@@ -24,7 +24,7 @@ class Power_model extends MY_Model
 		$count = $this->db->count_all_results();
 		$this->db = $tmpDB;
 
-		$offset = ($this->uri->segment(3,  1) - 1) * $this->limitRows;
+		$offset = ($this->uri->segment(4,  1) - 1) * $this->limitRows;
         $this->db->limit($this->limitRows, $offset);    // 添加limit
 
 		if($this->query = $this->db->get()){
@@ -148,7 +148,7 @@ class Power_model extends MY_Model
 		$this->db = $tmpDB;
 		$this->db->order_by('order desc');
 
-		$offset = ($this->uri->segment(3,  1) - 1) * $this->limitRows;
+		$offset = ($this->uri->segment(4,  1) - 1) * $this->limitRows;
         $this->db->limit($this->limitRows, $offset);    // 添加limit
 
 		if($this->query = $this->db->get()){
@@ -260,7 +260,7 @@ class Power_model extends MY_Model
 		$this->db = $tmpDB;
 		// $this->db->order_by('CreateTime desc');
 
-		$offset = ($this->uri->segment(3,  1) - 1) * $this->limitRows;
+		$offset = ($this->uri->segment(4,  1) - 1) * $this->limitRows;
         $this->db->limit($this->limitRows, $offset);    // 添加limit
 
 		if($this->query = $this->db->get()){

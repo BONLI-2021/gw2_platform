@@ -1,6 +1,6 @@
 <?php if(!defined('BASEPATH')) exit('No direct script access allowed');
 
-class Banner extends MY_Controller{
+class Banner extends Admin_Controller{
 	protected $isNeedLogin = TRUE;
 
 	public function __construct(){
@@ -33,7 +33,7 @@ class Banner extends MY_Controller{
 		$count = $result['count'];
 		$offset = $result['offset'];
 		$this->load->library('pagination');
-		$config = $this->myPagination(BASEURL.'admin.php/banner/ajaxBannerList',$count);
+		$config = $this->myPagination(BASEURL.'admin/banner/ajaxBannerList',$count);
 		$this->pagination->initialize($config);
 		$page = $this->pagination->create_links();
 		// 尾页

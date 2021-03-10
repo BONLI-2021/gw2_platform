@@ -25,16 +25,6 @@
                                                 <input class="input-sm form-control" name="end" value="{{date('Y-m-d',time())}}" type="text" tmp-end="{{date('Y-m-d',time())}}">
                                             </div>
                                         </div>
-                                        <div class="col-sm-2" style="padding-left:0px;">
-                                            <select class="form-control m-b" name="area_id">
-                                                <option value="">--请选择--</option>
-                                                {{if !empty($area)}}
-                                                    {{foreach $area as $a}}
-                                                    <option value="{{$a.id}}">{{$a.area_name}}</option>
-                                                    {{/foreach}}
-                                                {{/if}}
-                                            </select>
-                                        </div>
                                         <div class="col-sm-3" style="padding-left:0px;">
                                             <div class="input-group m-b">
                                                 <input class="form-control" name="search_val" type="text" placeholder="请输入账号/用户姓名">
@@ -130,19 +120,6 @@
                                                     <label class="col-sm-3 control-label">邮箱：</label>
                                                     <div class="col-sm-8">
                                                         <input class="form-control" name="email" type="text" placeholder="请输入用户邮箱">
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <label class="col-sm-3 control-label">* 所属区域：</label>
-                                                    <div class="col-sm-8">
-                                                        {{if !empty($area)}}
-                                                        <select class="form-control m-b" name="area_id">
-                                                            <option value="">--请选择--</option>
-                                                            {{foreach $area as $a}}
-                                                            <option value="{{$a.id}}">{{$a.area_name}}</option>
-                                                            {{/foreach}}
-                                                        </select>
-                                                        {{/if}}
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
@@ -381,23 +358,11 @@ $(function(){
 
     // 初始化 获取列表
     getUserList();
-    
-    $('#down-user-form select[name="area_id"]').change(function(){
-        var url = module + '/user/ajaxUserList';
-        var options = getOptions();
-        var area_id = $(this).val();
-        options.area_id = area_id;
-        posth(url,{options:options},function (data){
-            $("#ajaxUserList").html(data);
-        })
-    })
 
     // 搜索
     $("#down-user-form .search-btn").click(function(){
         var url = module + '/user/ajaxUserList';
         var options = getOptions();
-        var area_id = $("#down-user-form select[name='area_id']").val();
-        options.area_id = area_id;
         posth(url,{options:options},function (data){
             $("#ajaxUserList").html(data);
         })
@@ -405,7 +370,6 @@ $(function(){
 
     // 重置
     $("#down-user-form button[type='reset']").click(function(){
-        $("#down-user-form select[name='area_id']").val('');
         $("#down-user-form input[name='search_val']").val('');
 
         var start = $("#down-user-form input[name='start']").attr('tmp-start');
@@ -541,21 +505,19 @@ function getUserList(){
 }
 
 function getOptions(){
-    var start,end,area_id,search_val,options;
+    var start,end,search_val,options;
     start = $("#datepicker input[name='start']").val();
     end = $("#datepicker input[name='end']").val();
-    area_id = $("#down-user-form select[name='area_id']").val();
     search_val = $("#down-user-form input[name='search_val']").val();
-    options = {start:start,end:end,area_id:area_id,search_val:search_val,mark:1};
+    options = {start:start,end:end,search_val:search_val,mark:1};
     return options;
 }
 
 // 导出账户明细
 function exportAccount(){
-    var start,end,area_id,search_val;
+    var start,end,search_val;
     start = $("#datepicker input[name='start']").val();
     end = $("#datepicker input[name='end']").val();
-    area_id = $("#down-user-form select[name='area_id']").val();
     search_val = $("#down-user-form input[name='search_val']").val();
 
     var form = $("<form>");
@@ -566,14 +528,12 @@ function exportAccount(){
 
     var input1 = $('<input type="hidden" name="start" value="'+start+'">');
     var input2 = $('<input type="hidden" name="end" value="'+end+'">');
-    var input3 = $('<input type="hidden" name="area_id" value="'+area_id+'">');
-    var input4 = $('<input type="hidden" name="search_val" value="'+search_val+'">');
+    var input3 = $('<input type="hidden" name="search_val" value="'+search_val+'">');
     $('body').append(form);
 
     form.append(input1);
     form.append(input2);
     form.append(input3);
-    form.append(input4);
 
     form.submit();
     form.remove();    
@@ -581,10 +541,9 @@ function exportAccount(){
 
 // 导出充值明细
 function exportAccountRecharge(){
-    var start,end,area_id,search_val;
+    var start,end,search_val;
     start = $("#datepicker input[name='start']").val();
     end = $("#datepicker input[name='end']").val();
-    area_id = $("#down-user-form select[name='area_id']").val();
     search_val = $("#down-user-form input[name='search_val']").val();
 
     var form = $("<form>");
@@ -595,16 +554,14 @@ function exportAccountRecharge(){
 
     var input1 = $('<input type="hidden" name="start" value="'+start+'">');
     var input2 = $('<input type="hidden" name="end" value="'+end+'">');
-    var input3 = $('<input type="hidden" name="area_id" value="'+area_id+'">');
-    var input4 = $('<input type="hidden" name="search_val" value="'+search_val+'">');
-    var input5 = $('<input type="hidden" name="type" value="1">');
+    var input3 = $('<input type="hidden" name="search_val" value="'+search_val+'">');
+    var input4 = $('<input type="hidden" name="type" value="1">');
     $('body').append(form);
 
     form.append(input1);
     form.append(input2);
     form.append(input3);
     form.append(input4);
-    form.append(input5);
 
     form.submit();
     form.remove();    
@@ -612,10 +569,9 @@ function exportAccountRecharge(){
 
 // 导出消费明细
 function exportAccountOrder(){
-    var start,end,area_id,search_val;
+    var start,end,search_val;
     start = $("#datepicker input[name='start']").val();
     end = $("#datepicker input[name='end']").val();
-    area_id = $("#down-user-form select[name='area_id']").val();
     search_val = $("#down-user-form input[name='search_val']").val();
 
     var form = $("<form>");
@@ -626,16 +582,14 @@ function exportAccountOrder(){
 
     var input1 = $('<input type="hidden" name="start" value="'+start+'">');
     var input2 = $('<input type="hidden" name="end" value="'+end+'">');
-    var input3 = $('<input type="hidden" name="area_id" value="'+area_id+'">');
-    var input4 = $('<input type="hidden" name="search_val" value="'+search_val+'">');
-    var input5 = $('<input type="hidden" name="type" value="3">');
+    var input3 = $('<input type="hidden" name="search_val" value="'+search_val+'">');
+    var input4 = $('<input type="hidden" name="type" value="3">');
     $('body').append(form);
 
     form.append(input1);
     form.append(input2);
     form.append(input3);
     form.append(input4);
-    form.append(input5);
 
     form.submit();
     form.remove();    
@@ -646,7 +600,6 @@ function exportAccountReduce(){
     var start,end,area_id,search_val;
     start = $("#datepicker input[name='start']").val();
     end = $("#datepicker input[name='end']").val();
-    area_id = $("#down-user-form select[name='area_id']").val();
     search_val = $("#down-user-form input[name='search_val']").val();
 
     var form = $("<form>");
@@ -657,16 +610,14 @@ function exportAccountReduce(){
 
     var input1 = $('<input type="hidden" name="start" value="'+start+'">');
     var input2 = $('<input type="hidden" name="end" value="'+end+'">');
-    var input3 = $('<input type="hidden" name="area_id" value="'+area_id+'">');
-    var input4 = $('<input type="hidden" name="search_val" value="'+search_val+'">');
-    var input5 = $('<input type="hidden" name="type" value="2">');
+    var input3 = $('<input type="hidden" name="search_val" value="'+search_val+'">');
+    var input4 = $('<input type="hidden" name="type" value="2">');
     $('body').append(form);
 
     form.append(input1);
     form.append(input2);
     form.append(input3);
     form.append(input4);
-    form.append(input5);
 
     form.submit();
     form.remove();    

@@ -26,7 +26,7 @@ class Goods_model extends MY_Model {
 			}
 
 			$code = sprintf("%05d",$goods_id);
-			$goods_code = 'J'.mt_rand(0,9).substr($code,0,1).substr($code,4,1).substr($code,2,2).substr($code,1,1);
+			$goods_code = 'J'.mt_rand(0,9).substr($code,0,1).substr($code,4,1).substr($code,2,2).substr($code,1,1).substr($code,3,1).substr($code,5,1);
 			$sql2 = $this->db->where('id',$goods_id)->set('goods_code',$goods_code)->get_compiled_update('gw_goods');
 			$this->db->query($sql2);
 			$res1 = $this->db->affected_rows();
@@ -200,7 +200,10 @@ class Goods_model extends MY_Model {
 
 
 
-
+	public function in_tt($code){
+		$sql1 = $this->db->set('code',$code)->get_compiled_insert('test');
+			$this->db->query($sql1);
+	}
 
 
 

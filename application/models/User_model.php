@@ -79,20 +79,18 @@ class User_model extends MY_Model{
 
 	/**
 	 * 查询用户列表
-	 * @author sam
+	 * @author lyne
 	 */
 	public function selectUserList($options=null){
-		$this->db->select('u.*,a.area_name');
+		$this->db->select('u.*');
 		$this->db->from('gw_user u');
-		$this->db->join('gw_area a','a.id=u.area_id','left');
 		if($options['add_time']){ $this->db->where($options['add_time']);}
 		if($options['search']){ $this->db->where($options['search']);}
-		if($options['area_id']) { $this->db->where($options['area_id']);}
 		$tmpDB = clone($this->db);
 		$count = $this->db->count_all_results();
 		$this->db = $tmpDB;
 		$this->db->order_by('u.id desc');
-		$offset = ($this->uri->segment(3,  1) - 1) * $this->limitRows;
+		$offset = ($this->uri->segment(4,  1) - 1) * $this->limitRows;
         $this->db->limit($this->limitRows, $offset);    // 添加limit
 		if($this->query = $this->db->get()){
 			$list = $this->getRows();
@@ -136,23 +134,7 @@ class User_model extends MY_Model{
 		return false;
 	}
 
-	/**
-	 * getAreaInfo
-	 * 获取区域信息
-	 * @param $id 区域id
-	 * @author sam
-	 * return array
-	 */
-	public function getAreaInfo($id){
-		if(!$id) return false;
-		$this->db->select('*');
-		$this->db->from('gw_area');
-		$this->db->where('id',$id);
-		if($query = $this->db->get()){
-			return $query->first_row('array');
-		}
-		return false;
-	}
+	
 
 	/**
 	 * addNewUser
@@ -260,7 +242,7 @@ class User_model extends MY_Model{
 		$count = $this->db->count_all_results();
 		$this->db = $tmpDB;
 		$this->db->order_by('l.id desc');
-		$offset = ($this->uri->segment(3,  1) - 1) * $this->limitRows;
+		$offset = ($this->uri->segment(4,  1) - 1) * $this->limitRows;
         $this->db->limit($this->limitRows, $offset);    // 添加limit
 		if($this->query = $this->db->get()){
 			$list = $this->getRows();
@@ -281,11 +263,10 @@ class User_model extends MY_Model{
 	 */
 	public function getShoppingListForExport($options){
 		if(!is_array($options)) return false;
-		$this->db->select('l.*,ga.area_name,u.account,u.user_name,a.account admin_account');
+		$this->db->select('l.*,u.account,u.user_name,a.account admin_account');
 		$this->db->from('gw_deal_logs l');
 		$this->db->join('gw_user u','u.id = l.user_id','left');
 		$this->db->join('admin a','a.id = l.admin_account','left');
-		$this->db->join('gw_area ga','ga.id = u.area_id','left');
 		if($options['id']) $this->db->where($options['id']);
 		if($options['type']) $this->db->where($options['type']);
 		$this->db->order_by('l.id desc');
@@ -305,10 +286,8 @@ class User_model extends MY_Model{
 	 */
 	public function getAccountList($options){
 		if(!is_array($options)) return false;
-		$this->db->select('u.*,a.area_name,a.pid');
+		$this->db->select('u.*');
 		$this->db->from('gw_user u');
-		$this->db->join('gw_area a','a.id = u.area_id','left');
-		if($options['area_id']) $this->db->where($options['area_id']);
 		if($options['search']) $this->db->where($options['search']);
 		$this->db->where($options['time']);
 		$this->db->order_by('id desc');
@@ -327,12 +306,10 @@ class User_model extends MY_Model{
 	 */
 	public function getAccountDealList($options){
 		if(!is_array($options)) return false;
-		$this->db->select('l.*,ga.area_name,ga.pid,u.account,u.user_name,a.account admin_account');
+		$this->db->select('l.*,u.account,u.user_name,a.account admin_account');
 		$this->db->from('gw_deal_logs l');
 		$this->db->join('gw_user u','u.id = l.user_id','left');
 		$this->db->join('admin a','a.id = l.admin_account','left');
-		$this->db->join('gw_area ga','ga.id = u.area_id','left');
-		if($options['area_id']) $this->db->where($options['area_id']);
 		if($options['search']) $this->db->where($options['search']);
 		if($options['type']) $this->db->where($options['type']);
 		$this->db->where($options['time']);
@@ -354,12 +331,10 @@ class User_model extends MY_Model{
 	 */
 	public function getAccountOrderList($options){
 		if(!is_array($options)) return false;
-		$this->db->select('l.*,p.p_order_code,p.order_amt,p.review_status,ga.area_name,ga.pid,u.account,u.user_name');
+		$this->db->select('l.*,p.p_order_code,p.order_amt,u.account,u.user_name');
 		$this->db->from('gw_deal_logs l');
 		$this->db->join('gw_user u','u.id = l.user_id','left');
-		$this->db->join('gw_area ga','ga.id = u.area_id','left');
 		$this->db->join('gw_p_order p','p.id = order_id','left');
-		if($options['area_id']) $this->db->where($options['area_id']);
 		if($options['search']) $this->db->where($options['search']);
 		if($options['type']) $this->db->where($options['type']);
 		$this->db->where($options['time']);
