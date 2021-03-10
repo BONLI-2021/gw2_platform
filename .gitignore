@@ -21,9 +21,9 @@ application/config/testing/database.php
 
 application/sessions/admin/*
 application/sessions/home/*
-application/views/admin/templates_c/*
-application/views/home/templates_c/*
-application/views/h5/templates_c/*
+application/views/admin/template_c/*
+application/views/home/template_c/*
+application/views/h5/template_c/*
 public/templates_c/*
 public/upload/*
 !public/css/*
