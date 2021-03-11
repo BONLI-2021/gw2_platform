@@ -1,0 +1,117 @@
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>路径URL</th>
+            <th>链接Href</th>
+            <th>排序</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    {{if !empty($bannerlist)}}
+    <tbody>
+    {{foreach $bannerlist as $k=>$v}}
+        <tr tmp-k="{{$k+1+$offset}}">
+            <td class="key_id" tmp-id="{{$v['id']}}">{{$k+1+$offset}}</td>
+            <td><img width="20" src="{{PIC_O_URL}}{{$v['image_path']}}">&nbsp;&nbsp;{{$v['image_path']}}</td>
+            <td>{{$v['image_href']}}</td>
+            <td>{{$v['sort_weight']}}</td>
+            <td>{{date('Y-m-d H:i:s',$v['add_time'])}}</td>
+            <td>
+                <a data-toggle="modal" class="btn btn-xs btn-outline btn-primary banner-edit" href="#modal-form-editBanner">编辑</a>
+                <a class="btn btn-xs btn-outline btn-danger banner-del" href="JavaScript:;">删除</a>
+            </td>
+        </tr>
+    {{/foreach}}
+    {{else}}
+        <tr class="no-records-found t-align">
+            <td colspan="6">没有找到匹配的记录</td>
+        </tr>
+    {{/if}}
+    </tbody>
+</table>
+
+<div id="page-div" class="row">
+    <div class="col-sm-6">
+        <div id="editable_info" class="dataTables_info" role="alert" aria-live="polite" aria-relevant="all">显示 <span class="start">1</span> 到 <span class="end">10</span> 项，共 {{$total}} 项</div>
+    </div>
+    <div class="col-sm-6">
+        <div id="editable_paginate" class="dataTables_paginate paging_simple_numbers">
+            <ul class="pagination">
+                {{if !empty($showpage)}}
+                <li id="page-first" class="paginate_button previous" aria-controls="editable" tabindex="0">
+                    <a href="{{$module}}/banner/ajaxBannerList/1">首页</a>
+                </li>
+                {{$showpage}}
+                <li id="page-last" class="paginate_button next" aria-controls="editable" tabindex="0">
+                    <a href="{{$module}}/banner/ajaxBannerList/{{$last_page}}">尾页</a>
+                </li>
+                {{/if}}
+            </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(function(){
+    // 显示从1到10项，共xx项
+    var start = $("#ajaxBannerList table tbody tr:first").find('.key_id').html();
+    var end = $("#ajaxBannerList table tbody tr:last").find('.key_id').html();
+    $("#page-div .start").html(start);
+    $("#page-div .end").html(end);
+
+    // 上一页下一页改为post
+    $("#page-div .paginate_button").click(function (event) {
+        var url = $(this).children('a').attr('href');
+        posth(url,null,function (r) {
+            $('#ajaxBannerList').html(r);
+        });
+        // return false;
+        event.preventDefault();
+    });
+    // 禁用Banner
+    $("#ajaxBannerList .banner-del").click(function(){
+        var url = module + '/banner/ajaxDelBanner';
+        var banner_id = $(this).parent('td').parent('tr').find('td:first').attr('tmp-id');
+        $this = $(this);
+        post(url,{id:banner_id},function(r){
+            if(r.retcode==1){
+                layer.msg(r.msg,{icon:1,time:800},function(){
+                    getBannerList();
+                });
+            }else{
+                layer.msg(r.msg,{icon:2,time:1000},function(){
+                    getBannerList();
+                });
+            }
+        })
+    });
+
+
+    // 获取编辑banner
+    $("#ajaxBannerList .banner-edit").click(function(){
+        $("#modal-form-editBanner").find(".reset-btn").trigger('click');
+        $("#modal-form-editBanner").find("input,select").siblings('span').hide();
+        $("#modal-form-editBanner").find(".form-group").removeClass('has-error');
+        var url = module + '/banner/getBannerInfo';
+        var banner_id = $(this).parents('tr').find('td:first').attr('tmp-id');
+        post(url,{id:banner_id},function(r){
+            $("#modal-form-editBanner").find("input[name='id']").val(r.id);
+            $("#modal-form-editBanner").find(".my-thumbnail img").attr('src',"{{PIC_O_URL}}"+r.image_path);
+            $("#modal-form-editBanner").find("input[name='image_path']").val(r.image_path);
+            $("#modal-form-editBanner").find("input[name='image_href']").val(r.image_href);
+            $("#modal-form-editBanner").find("input[name='sort_weight']").val(r.sort_weight);
+            var st = $("#modal-form-editBanner").find("input[name='is_top']");
+            if(r.is_top==1){
+                st.attr('checked','checked');
+            }else{
+                st.removeAttr('checked');
+            }
+        });
+    });
+
+})
+</script>
+
+
+

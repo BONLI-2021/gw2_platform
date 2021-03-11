@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+{{include file="public/header.html"}}
+<link href="{{$public}}/css/goodsadd.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="{{$public}}/css/lyne-up-pic.css">
+</head>
+<style type="text/css">
+ul li{list-style-type:none}
+</style>
+<body>
+<div class="gray-bg dashbard-1">
+    <div id="content-main"  class="wrapper wrapper-content" style="height:calc(100% - 105px);">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>商品基础资料</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label>商品名</label>
+                                        <span class="form-control">{{$details['goods_name']}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label>所属供应商</label>
+                                        <span class="form-control">{{$details['vendor_name']}}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label>商品分类</label>
+                                        <span class="form-control">{{$details['cate_one_name']}} / {{$details['cate_two_name']}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                               
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label>供货价</label>
+                                        <span class="form-control">{{$details['price']}}</span>
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <div class="form-group">
+                                        <label>剩余库存</label>
+                                        <span class="form-control">{{$details['stock']}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>商品主图</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-sm-10">
+                                {{if $details['pic']}}
+                                {{foreach $details['pic'] as $p}}
+                                <img src="{{PIC_T_PATH}}{{PIC211X211}}/{{$p}}">
+                                {{/foreach}}
+                                {{/if}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>商品详情</h5>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                {{$details['goods_details']}}
+                            </div>
+                        </div>
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {{include file="public/footer.html"}}
+</div>
+</body>
+</script>
+</html>

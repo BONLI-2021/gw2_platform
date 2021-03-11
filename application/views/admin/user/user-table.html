@@ -1,0 +1,211 @@
+<table class="table table-bordered table-hover" data-click-to-select='true'>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>账号</th>
+            <th>用户名</th>
+            <th>邮箱</th>
+            <th>状态</th>
+            <th>总充值金额</th>
+            <th>已消费金额</th>
+            <th>账户余额</th>
+            <th>创建时间</th>
+            <th>操作</th>
+        </tr>
+    </thead>
+    <tbody>
+    	{{if !empty($userlist)}}
+    	{{foreach $userlist as $k=>$v}}
+        <tr tmp-k="{{$k+1+$offset}}">
+            <td tmp-id="{{$v['id']}}">{{$offset+1+$k}}</td>
+            <td style="position:relative"><span>{{$v['account']}}</span></td>
+            <td>{{$v['user_name']}}</td>
+            <td>{{$v['email']}}</td>
+            <td>
+                {{if $v['state']==1}}
+                    <span class="label label-primary">正常</span>
+                {{else}}
+                    <span class="label label-danger">禁用</span>
+                {{/if}}
+            </td>
+            <td>{{$v['recharge_amount']}}</td>
+            <td>{{$v['used_amount']}}</td>
+            <td>{{$v['balance']}}</td>
+            <td>{{date('Y-m-d H:i:s',$v['add_time'])}}</td>
+            <td>
+                <a data-toggle="modal" class="btn btn-xs btn-outline btn-primary edit-btn" href="#modal-form-edituser">编辑</a>
+                {{if $v['state']==1}}
+                    <a class="btn btn-xs btn-danger user-del-btn" tmp-state="0">禁用</a>
+                {{else}}
+                    <a class="btn btn-xs btn-primary user-del-btn" tmp-state="1">恢复</a>
+                {{/if}}
+                <a class="btn btn-xs btn-outline btn-success shoppingDts" href="javascript:void(0);">明细</a><br>
+
+                {{if $v['state']=='1'}}
+                    <a class="btn btn-xs btn-outline btn-danger recharge-btn" data-toggle="modal" href="#modal-form-recharge">充值</a>
+                {{else}}
+                    <a class="btn btn-xs btn-outline btn-default" disabled href="javascript:;">充值</a>
+                {{/if}}
+                <a class="btn btn-xs btn-outline btn-warning reduce-btn" data-toggle="modal" href="#modal-form-reduce">扣减</a>
+            </td>
+        </tr>
+        {{/foreach}}
+       	{{else}}
+       	<tr class="no-records-found t-align">
+			<td colspan="11">没有找到匹配的记录</td>
+		</tr>
+       	{{/if}}
+    </tbody>
+</table>
+
+<div id="page-div" class="row">
+    <div class="col-sm-6">
+        <div id="editable_info" class="dataTables_info" role="alert" aria-live="polite" aria-relevant="all">显示 <span class="start">0</span> 到 <span class="end">0</span> 项，共 {{$total}} 项</div>
+    </div>
+    <div class="col-sm-6">
+        <div id="editable_paginate" class="dataTables_paginate paging_simple_numbers">
+            <ul class="pagination">
+            	{{if !empty($showpage)}}
+                <li id="page-first" class="paginate_button previous" aria-controls="editable" tabindex="0">
+                	<a href="{{$module}}/user/ajaxUserList/1">首页</a>
+                </li>
+				{{$showpage}}
+				<li id="page-last" class="paginate_button next" aria-controls="editable" tabindex="0">
+                    <a href="{{$module}}/user/ajaxUserList/{{$last_page}}">尾页</a>
+                </li>
+                {{/if}}
+            </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(function(){
+	// 显示从1到10项，共xx项
+	var start = $("#ajaxUserList table tbody tr:first").attr('tmp-k');
+	var end = $("#ajaxUserList table tbody tr:last").attr('tmp-k');;
+	$("#page-div .start").html(start);
+	$("#page-div .end").html(end);
+
+	// 上一页下一页改为post
+	$("#page-div .paginate_button").click(function (event) {
+        var options = getOptions();
+	    var url = $(this).children('a').attr('href');
+	    posth(url,{options:options},function(r){
+            $('#ajaxUserList').html(r);
+        })
+	    event.preventDefault();
+	});
+   
+    // 获取编辑用户
+    $("#ajaxUserList .edit-btn").click(function(){
+        var url = module + '/user/getUserInfo';
+        var user_id = $(this).parents('tr').find('td:first').attr('tmp-id');
+        post(url,{id:user_id},function(r){
+            if(r.retcode===1){
+                $("#modal-form-edituser").find("input[name='id']").val(r.data.userinfo.id);
+                $("#modal-form-edituser").find("input[name='account']").val(r.data.userinfo.account);
+                $("#modal-form-edituser").find("input[name='user_name']").val(r.data.userinfo.user_name);
+                $("#modal-form-edituser").find("input[name='email']").val(r.data.userinfo.email);
+            }else{
+                $("#modal-form-edituser .close").trigger('click');
+                toastr.error(r.msg);
+            }
+        });
+    });
+
+    // 禁用用户
+    $(".user-del-btn").click(function(){
+        var uid = $(this).parents('tr').find('td:first').attr('tmp-id');
+        var state = $(this).attr('tmp-state');
+        var url = module + '/user/ajaxDelUser';
+        layer.confirm('您确定修改该用户状态吗？', {
+          btn: ['确定','取消'] //按钮
+        }, function(){
+            post(url,{id:uid,state:state},function(res){
+                if(res.retcode===1){
+                    layer.msg(res.msg,{icon:1},function(){
+                        getUserList();
+                    });
+                }else{
+                    layer.msg(res.msg,{icon:1});
+                }
+            });
+        }, function(){
+            layer.msg('已取消', {icon: 2});
+        });
+    });
+
+    // 获取充值用户信息
+    $("#ajaxUserList .recharge-btn").click(function(){
+        $("#modal-form-recharge input").val('');
+        $("#modal-form-recharge input").removeAttr('aria-required').removeAttr('aria-invalid').removeAttr('aria-describedby').next('span').remove();
+        
+        $("#signupForm-recharge").children().each(function(){
+            $(this).removeClass('has-error').removeClass('has-success');
+        });
+
+        var url = module + '/user/getUserInfo';
+        var user_id = $(this).parents('tr').find('td:first').attr('tmp-id');
+        post(url,{id:user_id},function(res){
+            if(res.retcode===1){
+                var r = res.data; 
+                $("#modal-form-recharge").find("input[name='id']").val(r.userinfo.id);
+                $("#modal-form-recharge").find("input[name='account']").val(r.userinfo.account);
+                $("#modal-form-recharge").find("input[name='user_name']").val(r.userinfo.user_name);
+                $("#modal-form-recharge").find("input[name='balance']").val(r.userinfo.balance);
+                $("#modal-form-recharge").find("input[name='type']").val(1);
+            }else{
+                layer.msg(res.msg,{icon:2});
+            }
+        });
+    });
+
+    // 获取扣减用户信息
+    $("#ajaxUserList .reduce-btn").click(function(){
+        $("#modal-form-reduce input").val('');
+        $("#modal-form-reduce input").removeAttr('aria-required').removeAttr('aria-invalid').removeAttr('aria-describedby').next('span').remove();
+        
+        $("#signupForm-reduce").children().each(function(){
+            $(this).removeClass('has-error').removeClass('has-success');
+        });
+
+        var url = module + '/user/getUserInfo';
+        var user_id = $(this).parents('tr').find('td:first').attr('tmp-id');
+        post(url,{id:user_id},function(res){
+            if(res.retcode===1){
+                var r = res.data;
+                $("#modal-form-reduce").find("input[name='id']").val(r.userinfo.id);
+                $("#modal-form-reduce").find("input[name='account']").val(r.userinfo.account);
+                $("#modal-form-reduce").find("input[name='user_name']").val(r.userinfo.user_name);
+                $("#modal-form-reduce").find("input[name='balance']").val(r.userinfo.balance);
+                $("#modal-form-reduce").find("input[name='type']").val(2);
+            }else{
+                layer.msg(res.msg,{icon:2});
+            }
+        });
+    });
+    
+    // 点击
+    $('.shoppingDts').click(function(){
+        var id = $(this).parents('tr').find('td:first').attr('tmp-id');
+        var url = module + '/user/shoppingList/'+id;
+        
+        layer.open({
+            type: 2,
+            title: ' 用户消费明细：',
+            shadeClose: true,
+            shade: false,
+            maxmin: true, //开启最大化最小化按钮
+            area: ['100%', '100%'],
+            content: url,
+            end:function(){
+                getUserList();
+            }
+        });
+    })
+})
+
+</script>
+
+
+

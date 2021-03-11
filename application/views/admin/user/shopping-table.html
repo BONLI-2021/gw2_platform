@@ -1,0 +1,82 @@
+<table class="table table-bordered table-striped table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th class="col-sm-2">账号</th>
+            <th class="col-sm-2">时间</th>
+            <th class="col-sm-1">类型</th>
+            <th class="col-sm-1">金额</th>
+            <th class="col-sm-2">操作账号</th>
+            <th class="col-sm-3">操作原因</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{if !empty($shoppinglist)}}
+        {{foreach $shoppinglist as $k=>$s}}
+        <tr tmp-k="{{$k+1+$offset}}">
+            <td tmp-id="{{$s['id']}}">{{$offset+1+$k}}</td>
+            <td>{{$s['account']}}</td>
+            <td>{{date("Y-m-d H:i:s",$s['add_time'])}}</td>
+            <td>
+                {{if $s['deal_type']==1}}
+                    <span class="text-navy">充值</span>
+                {{elseif $s['deal_type']==2}}
+                    <span class="text-warning">扣减</span>
+                {{elseif $s['deal_type']==3}}
+                    <span class="text-success">消费</span>
+                {{else}}
+                    <span class="text-danger">退回</span>
+                {{/if}}
+            </td>
+            <td>{{$s['deal_amount']}}</td>
+            <td>{{$s['admin_account']}}</td>
+            <td>{{$s['explain']}}</td>
+        </tr>
+        {{/foreach}}
+        {{else}}
+        <tr class="no-records-found t-align">
+            <td colspan="7">没有找到匹配的记录</td>
+        </tr>
+        {{/if}}
+    </tbody>
+</table>
+<div id="page-div" class="row">
+    <div class="col-sm-6">
+        <div id="editable_info" class="dataTables_info" role="alert" aria-live="polite" aria-relevant="all">显示 <span class="start">0</span> 到 <span class="end">0</span> 项，共 {{$total}} 项</div>
+    </div>
+    <div class="col-sm-6">
+        <div id="editable_paginate" class="dataTables_paginate paging_simple_numbers">
+            <ul class="pagination">
+                {{if !empty($showpage)}}
+                <li id="page-first" class="paginate_button previous" aria-controls="editable" tabindex="0">
+                    <a href="{{$module}}/user/ajaxShoppingList/1">首页</a>
+                </li>
+                {{$showpage}}
+                <li id="page-last" class="paginate_button next" aria-controls="editable" tabindex="0">
+                    <a href="{{$module}}/user/ajaxShoppingList/{{$last_page}}">尾页</a>
+                </li>
+                {{/if}}
+            </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+$(function(){
+    // 显示从1到10项，共xx项
+    var start = $("#ajaxShoppingList table tbody tr:first").attr('tmp-k');
+    var end = $("#ajaxShoppingList table tbody tr:last").attr('tmp-k');
+    $("#page-div .start").html(start);
+    $("#page-div .end").html(end);
+
+    // 上一页下一页改为post
+    $("#page-div .paginate_button").click(function (event) {
+        var url = $(this).children('a').attr('href');
+        var type = $("select[name='type']").val();
+        var id = $("input[name='id']").val();
+        posth(url,{type:type,id:id},function(res){
+            $("#ajaxShoppingList").html(res);
+        })
+        event.preventDefault();
+    });
+})
+</script>

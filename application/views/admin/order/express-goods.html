@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+{{include file="public/header.html"}}
+</head>
+<body>
+<div class="col-sm-12 pt10">
+    <h3>订单商品：</h3>
+    <table class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th class="col-sm-5">商品名称 / 规格</th>
+                <th class="col-sm-2">商品图示</th>
+                <th class="col-sm-2">下单数量</th>
+                <th class="col-sm-2">发货数量</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{if !empty($goods)}}
+            {{foreach $goods as $k=>$g}}
+            <tr>
+                <td tmp-id="{{$g['id']}}">{{$k+1}}</td>
+                <td>{{$g['goods_name']}}<br><small class="text-navy">规格：{{$g['spec_name']}}</small></td>
+                <td class="client-avatar">
+                    <img alt="image" src="{{PIC_O_URL}}{{$g['goods_pic']}}">
+                </td>
+                <td>{{$g['buy_num']}}</td>
+                <td><input class="form-control" type="text" name="{{$g.id}}" value="{{$g['buy_num']}}"></td>
+            </tr>
+            {{/foreach}}
+            {{/if}}
+        </tbody>
+    </table>
+    <div class="jumbotron">
+        <div class="form-group">
+            <label>物流公司</label>
+            <select class="form-control m-b" name="express_company">
+                {{foreach $expresslist as $v}}
+                <option value="{{$v.code}}-{{$v.company}}">{{$v.company}}</option>
+                {{/foreach}}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>物流单号</label>
+            <input name="express_no" class="form-control" type="text" aria-required="true" required aria-invalid="true"  placeholder="多个单号请以'+'号分隔" />
+        </div>
+        <input type="hidden" name="id" value="{{$id}}">
+    </div>
+
+    <div class="modal-footer">
+        <button type="button" class="btn btn-white close-iframe">关闭</button>
+        <button type="button" class="btn btn-primary send-express">保存</button>
+    </div>
+</div>
+<script src="{{$public}}/js/admin/jquery.min.js"></script>
+<script src="{{$public}}/js/admin/jquery.cookie.js"></script>
+<script src="{{$public}}/layer/layer.js"></script>
+<script src="{{$public}}/js/admin/server/ajax.common.js"></script>
+<script type="text/javascript">
+    var index = parent.layer.getFrameIndex(window.name);
+    $(".close-iframe").click(function(){
+        parent.layer.closeAll();
+    })
+
+    $('.send-express').click(function(){
+        var company = $('select[name="express_company"]').val();
+        var express_no = $('input[name="express_no"]').val();
+        if(company==null || company==''){
+            layer.msg('请先选择物流公司', {icon: 2});
+            return false;
+        }
+        
+        if(express_no==null || express_no==''){
+            layer.msg('请先填写物流单号', {icon: 2});
+            return false;
+        }
+        var express = {};
+        var id = $('input[name="id"]').val();
+        express.id = id;
+        express.company = company;
+        express.express_no = express_no;
+        var total_num = 0;
+        $('tbody').find('input').each(function(){
+            var $key = $(this).attr('name');
+            var $val = $(this).val();
+            if($val==null){
+                $val = 0;
+            }
+            total_num += $val;
+            express[$key] = $val;
+        })
+        // 发货数量不能全为零
+        if(total_num==0) {
+            layer.msg('请先填写发货数量', {icon: 2});
+            return false;
+        }
+
+        var url = module+'/order/ajaxSendExpress';
+        post(url,{express:express},function(r){
+            if(r.retcode===1){
+                layer.msg(r.msg,{icon:1},function(){
+                    parent.layer.close(index);
+                });
+            }else{
+                layer.msg(r.msg,{icon:2},function(){
+                    parent.layer.close(index);
+                });
+            }
+        })
+    })
+</script>
+</body>
+</html>

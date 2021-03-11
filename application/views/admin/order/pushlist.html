@@ -1,0 +1,10 @@
+<ul class="layer_notice" style="padding:0px 15px 15px 25px;">
+    {{if !empty($exp_push_list['data'])}}
+    <h2>状态：{{$exp_push_list['state_v']}}</h2>
+    {{foreach $exp_push_list['data'] as $v}}
+    <li>{{$v['ftime']}} <br>{{$v['context']}}</li>
+    {{/foreach}}
+    {{else}}
+    <li>暂无物流信息...</li>
+    {{/if}}
+</ul>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+{{include file="public/header.html"}}
+</head>
+<body>
+<div class="ibox float-e-margins">
+    <div class="ibox-title" style="min-height:94px">
+    <h3>用户消费明细</h3>
+    <div class="col-sm-12">
+        <div class="col-sm-1">
+            <select class="form-control m-b js-example-basic-multiple area-choose" name="type" tmp-msg="请选择类型">
+                <option value="">- 筛选类型 -</option>
+                <option value="1">充值</option>
+                <option value="3">消费</option>
+                <option value="2">扣减</option>
+                <option value="4">取消退回</option>
+            </select>
+            <input type="hidden" name="id" value="{{$id}}">
+        </div>
+        <div class="col-sm-1 pull-right">
+            <div class="input-group m-b">
+                <span class="input-group-btn">
+                    <button class="btn btn-primary export-list pull-right" type="button" onclick="exportExcel()">导出</button>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div id="ajaxShoppingList" class="ibox-content">
+    
+    </div>
+</div>
+    
+<script src="{{$public}}/js/admin/jquery.min.js"></script>
+<script src="{{$public}}/js/admin/jquery.cookie.js"></script>
+<script src="{{$public}}/js/layer/layer.js"></script>
+<script src="{{$public}}/js/admin/plugins/toastr/toastr.min.js"></script>
+<script src="{{$public}}/js/admin/server/ajax.common.js"></script>
+<script type="text/javascript">
+    var index = parent.layer.getFrameIndex(window.name);
+    $(".close-iframe").click(function(){
+        parent.layer.closeAll();
+    })
+    getShoppingList();
+
+    $('select[name="type"]').change(function(){
+        getShoppingList();
+    })
+    
+    function exportExcel(){
+        var id = $('input[name="id"]').val();
+        var type = $('select[name="type"]').val();
+        var form = $("<form>");
+        form.attr('style', 'display:none');
+        form.attr('target', '');
+        form.attr('method', 'post');
+        form.attr('action', module+'/user/exportShoppingLogs');
+
+        var input1 = $('<input>');
+        input1.attr('type', 'hidden');
+        input1.attr('name', 'id');
+        input1.attr('value', id);      /* JSON.stringify($.serializeObject($('#searchForm'))) */
+
+        var input2 = $('<input>');
+        input2.attr('type', 'hidden');
+        input2.attr('name', 'type');
+        input2.attr('value',type);      /* JSON.stringify($.serializeObject($('#searchForm'))) */
+        $('body').append(form);
+        form.append(input1);
+        form.append(input2);
+         
+        form.submit();
+        form.remove();
+    }
+
+    function getShoppingList(){
+        var type = $("select[name='type']").val();
+        var id = $("input[name='id']").val();
+        var url = module+'/user/ajaxShoppingList';
+        posth(url,{type:type,id:id},function(res){
+            $("#ajaxShoppingList").html(res);
+            var trlen = $('body .table').find('tbody tr').length;
+            if(trlen==1){
+                if($('body .table').find('tbody tr').hasClass('no-records-found')){
+                    $('body .export-list').removeClass('btn-primary').addClass('btn-default').attr('disabled','disabled');
+                }else{
+                   $('body .export-list').removeClass('btn-default').addClass('btn-primary').removeAttr('disabled'); 
+                }
+            }else{
+                $('body .export-list').removeClass('btn-default').addClass('btn-primary').removeAttr('disabled'); 
+            }
+        })
+    }
+
+    
+    
+</script>
+</body>
+</html>

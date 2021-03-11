@@ -1,0 +1,114 @@
+
+.ablum-upload .my-thumbnail {
+    margin: 8px 0;
+    width: 20%;
+}
+.ablum-upload-btn .my-thumbnail {
+    width: 20%;
+}
+.pic-name {
+    position: absolute;
+    width: 114px;
+    height: 20px;
+    background-color: #ddd;
+    text-align: center;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    left: 20px;
+    bottom: 5px;
+}
+
+.mer_pic-name{
+    position: absolute;
+    width: 130px;
+    height: 20px;
+    background-color: #ddd;
+    text-align: center;
+    overflow:hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    left: 20px;
+    bottom: 5px;
+}
+
+.img-del {
+    color:red;
+    font-weight: bolder;
+    position: relative;
+    font-size: 20px;
+    cursor: pointer;
+    right: -57px;
+    bottom:141px;
+}
+#zhezhao1{
+    position: fixed;
+    top: 333px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    outline: 0;
+    -webkit-overflow-scrolling: touch;
+    background-color: rgb(0, 0, 0);  
+    filter: alpha(opacity=60);  
+    background-color: rgba(0, 0, 0, 0); 
+    z-index: 9999;
+}
+.c_span{
+    display: block;
+    float: left;
+    height: 40px;
+    line-height: 40px;
+    text-align: right;
+    width: 200px;
+    font-size: 16px;
+}
+.c_merName{
+    font-size: 36px;
+    color:blue;
+    height: 40px;
+    line-height: 40px;
+}
+.c_merId{
+    font-size:24px;
+    color:#1AB394;
+    height: 40px;
+    line-height: 40px;
+}
+.img-t{
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    display: inline-block;
+    height: auto;
+    line-height: 1.42857;
+    max-width: 100%;
+    padding: 4px;
+    transition: all 0.2s ease-in-out 0s; 
+}
+#zhezhao{
+    position: fixed;
+    top: 145px;
+    height: 270px;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    overflow: hidden;
+    outline: 0;
+    -webkit-overflow-scrolling: touch;
+    background-color: rgb(0, 0, 0);  
+    filter: alpha(opacity=60);  
+    background-color: rgba(0, 0, 0, 0); 
+    z-index: 9999;
+}
+
+.ajax-attr-box{background:#f3f3f3;padding:20px;border-radius:5px;min-height:50px;width:90%;}
+.attr-box{background:#f3f3f3;padding:20px;border-radius:5px;min-height:50px;width:80%;}
+.img-center{text-align: center;}
+.img-center img{margin:4px;}
+.g-add-label{margin-left:17px;color:#999;}
+
+/*#form .form-group{
+    margin-bottom:5px;
+}*/
