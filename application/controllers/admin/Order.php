@@ -17,12 +17,7 @@ class Order extends Admin_Controller {
     public function index(){
 
 
-        // var_dump($this->session->login);
-        $area = $this->order_model->getAreaList();
-        // echo "<pre>";
-        // var_dump($area);
         $this->assign('title','订单列表');
-        $this->assign('area',$area);
         $this->display('order/index.html');
     }
 
@@ -54,20 +49,6 @@ class Order extends Admin_Controller {
             }else{
                 $tmp_options['search']=null;
             }
-            
-            // 订单状态
-            if(isset($this->session->options['review_status']) && $this->session->options['review_status'] !==''){
-                $tmp_options['os'] = "p.review_status='".$this->session->options['review_status']."'";
-            }else{
-                $tmp_options['os']=null;
-            }
-
-            // 区域
-            if(isset($this->session->options['area_id']) && $this->session->options['area_id'] !==''){
-                $tmp_options['area'] = "p.area_id='".$this->session->options['area_id']."'";
-            }else{
-                $tmp_options['area']=null;
-            }
         }
         $result = $this->order_model->selectOrderList($tmp_options);
         // echo "<pre>";
@@ -75,17 +56,8 @@ class Order extends Admin_Controller {
         $list = $result['list'];
         $count = $result['count'];
         foreach ($list as $k => &$v) {
-            $manage = $this->manageOrder($v);
-            if(!in_array($v['review_status'], array('1','3','-1'))){
-                $cancel = $this->order_model->checkOrderCancel($v['id']);
-                if(empty($cancel)){
-                    $list[$k]['cancel'] = true;
-                }
-            }
-            if($v['area_type']==3){
-                $area_dts = $this->order_model->getAreaDts($v['area_id']);
-                $v['parent_area_name']  = $this->order_model->getAreaDts($area_dts['pid'])['area_name'];
-            }
+            // $manage = $this->manageOrder($v);
+            $v['add_time'] = date("Y-m-d H:i:s",$v['add_time']);
         }
         // echo "<pre>";
         // var_dump($list);exit;
@@ -110,20 +82,14 @@ class Order extends Admin_Controller {
      * @author sam
      */
     public function orderDts(){
-        $id = $this->uri->segment(3,true);
+        $id = $this->uri->segment(4,true);
         $details = $this->order_model->getOrderDts($id);
         
         // echo "<pre>";
         // var_dump($details);exit;
         $details['sorder'] = $this->order_model->getSonOrders($id);
-        $details['review'] = $this->order_model->getOrderReview($id);
         foreach ($details['sorder'] as $k => &$v) {
             
-            if($v['receive_pic'] !=''){
-                $v['receive_pic'] = explode('|', rtrim($v['receive_pic'],'|'));
-            }else{
-                $v['receive_pic'] = null;
-            }
             if($v['express_no'] !=''){
                 $express_no = '';
                 $express_no_arr =  explode('+', rtrim($v['express_no'],'+'));
@@ -133,13 +99,13 @@ class Order extends Admin_Controller {
             
             $goods = $this->order_model->getSonOrderGoods($v['id']);
             foreach ($goods as $gk=>&$gv) {
-                $goods[$gk]['goods_pic'] = explode('|', $gv['goods_pic'])[0];
+                $goods[$gk]['goods_pic'] = current(explode('|', $gv['goods_pic']));
             }
             $v['goods'] = $goods;
         }
-        $this->manageOrder($details);
-        // echo "<pre>";
-        // var_dump($details['review']);exit;
+
+        $details['add_time'] = date("Y-m-d H:i:s",$details['add_time']);
+        // $this->manageOrder($details);
         $this->assign('title','订单列表');
         $this->assign('details',$details);
         $this->display('order/order-dts.html');

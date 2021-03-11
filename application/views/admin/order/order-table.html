@@ -4,12 +4,10 @@
             <th>#</th>
             <th>订单号</th>
             <th>用户账号</th>
-            <th>所属区域</th>
             <th>订单金额</th>
             <th>收货人</th>
             <th>收货手机号</th>
             <th>收货地址</th>
-            <th>审核状态</th>
             <th>下单时间</th>
             <th>操作</th>
         </tr>
@@ -21,12 +19,10 @@
             <td class="order_id">{{$k+1+$offset}}</td>
             <td class="p_order_code"><a href="{{$module}}/order/orderDts/{{$v['id']}}">{{$v['p_order_code']}}</a></td>
             <td>{{$v['account']}}</td>
-            <td>{{$v['area_name']}}{{if isset($v['parent_area_name'])}}/{{$v['parent_area_name']}}{{/if}}</td>
             <td>{{$v['order_amt']}}</td>
             <td>{{$v['consignee']}}</td>
             <td>{{$v['consignee_phone']}}</td>
             <td>{{$v['addr']}}{{$v['details']}}</td>
-            <td><span class="label {{$v['reviewStatusLabel']}}">{{$v['review_status_v']}}</span></td>
             <td>{{$v['add_time']}}</td>
             <td>
                 <a class="btn btn-xs btn-outline btn-primary" href="{{$module}}/order/orderDts/{{$v['id']}}">查看</a>
@@ -38,7 +34,7 @@
         {{/foreach}}
        	{{else}}
        	<tr class="no-records-found t-align">
-			<td colspan="11">没有找到匹配的记录</td>
+			<td colspan="9">没有找到匹配的记录</td>
 		</tr>
        	{{/if}}
     </tbody>

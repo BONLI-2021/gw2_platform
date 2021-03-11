@@ -9,46 +9,26 @@ class Order_model extends MY_Model{
 		parent::__construct();
 	}
 
-	/**
-	 * getAreaList
-	 * 查询所有区域
-	 * @author sam
-	 * return array
-	 */
-	public function getAreaList(){
-		$this->db->select('*');
-		$this->db->from('gw_area');
-		$this->db->where('state',1);
-		$this->db->where('type !=',1);
-		if($this->query = $this->db->get()){
-			return $this->getRows();
-		}
-		return false;
-	}
 
 	/**
 	 * selectOrderList
 	 * 查询父订单列表
 	 * @param $option 条件数组
-	 * @author sam
-	 * return array
+	 * @author lyne
 	 */
 	public function selectOrderList($options){
 		if(!is_array($options)) return false;
-		$this->db->select('p.*,a.area_name');
+		$this->db->select('p.*');
 		$this->db->from('gw_p_order p');
-		$this->db->join('gw_area a','a.id=p.area_id','left');
 
 		if($options['add_time']){ $this->db->where($options['add_time']);}
 		if($options['search']){ $this->db->where($options['search']);}
-		if($options['os']){ $this->db->where($options['os']); }
-		if($options['area']){ $this->db->where($options['area']); }
 		$tmpDB = clone($this->db);
 		$count = $this->db->count_all_results();
 		$this->db = $tmpDB;
 		$this->db->order_by('p.add_time desc');
 		$this->db->order_by('p.id');
-		$offset = ($this->uri->segment(3,  1) - 1) * $this->limitRows;
+		$offset = ($this->uri->segment(4,  1) - 1) * $this->limitRows;
         $this->db->limit($this->limitRows, $offset);    // 添加limit
 
 		if($this->query = $this->db->get()){
@@ -61,6 +41,70 @@ class Order_model extends MY_Model{
 		}
 		return false;
 	}
+
+	/**
+	 * getOrderDts
+	 * 查看订单详情
+	 * @param $id 订单id
+	 * @author lyne
+	 */
+	public function getOrderDts($id){
+		if(!$id) return false;
+		$this->db->select('p.*,u.id uid');
+		$this->db->from('gw_p_order p');
+		$this->db->join('gw_user u','u.account = p.account','left');
+		$this->db->where('p.id',$id);
+		if($query = $this->db->get()){
+			// echo $this->db->last_query();
+			return $query->first_row('array');
+		}
+		return false;
+	}
+
+	/**
+	 * getSonOrders
+	 * 查询子订单
+	 * @param $id 父订单id
+	 * @author lyne
+	 */
+	public function getSonOrders($id){
+		if(!$id) return false;
+		$this->db->select('s.*,v.vendor_name');
+		$this->db->from('gw_s_order s');
+		$this->db->join('gw_vendor v','v.id = s.vendor_id','left');
+		$this->db->where('s.parent_oid',$id);
+		if($this->query = $this->db->get()){
+			return $this->getRows();
+		}
+		return false;
+	}
+
+	/**
+	 * getSonOrderGoods
+	 * 获取子订单商品
+	 * @param $id 子订单id
+	 * @author lyne
+	 */
+	public function getSonOrderGoods($id){
+		if(!$id) return false;
+		$this->db->select('g.*,s.s_order_code');
+		$this->db->from('gw_order_goods g');
+		$this->db->join('gw_s_order s','s.id = g.parent_sid','left');
+		$this->db->where('g.parent_sid',$id);
+		if($this->query = $this->db->get()){
+			return $this->getRows();
+		}
+		return false;
+	}
+
+
+
+
+
+
+
+
+
 
 	/**
 	 * checkOrderCancel
@@ -137,45 +181,9 @@ class Order_model extends MY_Model{
 		return false;
 	}
 
-	/**
-	 * getOrderDts
-	 * 查看订单详情
-	 * @param $id 订单id
-	 * @author sam
-	 * return array
-	 */
-	public function getOrderDts($id){
-		if(!$id) return false;
-		$this->db->select('p.*,a.area_name,u.id uid');
-		$this->db->from('gw_p_order p');
-		$this->db->join('gw_area a','a.id = p.area_id','left');
-		$this->db->join('gw_user u','u.account = p.account','left');
-		$this->db->where('p.id',$id);
-		if($query = $this->db->get()){
-			// echo $this->db->last_query();
-			return $query->first_row('array');
-		}
-		return false;
-	}
+	
 
-	/**
-	 * getSonOrders
-	 * 查询子订单
-	 * @param $id 父订单id
-	 * @author sam
-	 * return array
-	 */
-	public function getSonOrders($id){
-		if(!$id) return false;
-		$this->db->select('s.*,v.vendor_name');
-		$this->db->from('gw_s_order s');
-		$this->db->join('gw_vendor v','v.id = s.vendor_id','left');
-		$this->db->where('s.parent_oid',$id);
-		if($this->query = $this->db->get()){
-			return $this->getRows();
-		}
-		return false;
-	}
+	
 
 	/**
 	 * getSonOrderDts
@@ -197,43 +205,9 @@ class Order_model extends MY_Model{
 		return false;
 	}
 
-	/**
-	 * getSonOrderGoods
-	 * 获取子订单商品
-	 * @param $id 子订单id
-	 * @author sam
-	 * return array
-	 */
-	public function getSonOrderGoods($id){
-		if(!$id) return false;
-		$this->db->select('g.*,s.s_order_code');
-		$this->db->from('gw_order_goods g');
-		$this->db->join('gw_s_order s','s.id = g.parent_sid','left');
-		$this->db->where('g.parent_sid',$id);
-		if($this->query = $this->db->get()){
-			return $this->getRows();
-		}
-		return false;
-	}
+	
 
-	/**
-	 * getOrderReview
-	 * 获取订单审核意见
-	 * @param $id 父订单id
-	 * @author sam
-	 * return array
-	 */
-	public function getOrderReview($id){
-		if(!$id) return false;
-		$this->db->select('*');
-		$this->db->from('gw_review');
-		$this->db->where('p_order_id',$id);
-		$this->db->order_by('from_who asc');
-		if($this->query = $this->db->get()){
-			return $this->getRows();
-		}
-		return false;
-	}
+	
 
 	/**
 	 * updateOrderForExpress

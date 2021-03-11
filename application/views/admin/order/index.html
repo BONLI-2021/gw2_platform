@@ -32,31 +32,6 @@
                                                 <input class="input-sm form-control" name="end" value="{{if isset($smarty.session.options['end']) && !empty($smarty.session.options['end'])}}{{$smarty.session.options['end']}}{{else}}{{date('Y-m-d',time())}}{{/if}}" type="text">
                                             </div>
                                         </div>
-                                        <div class="col-sm-1" style="width: 10%;">
-                                            <div class="input-group m-b">
-                                                <div class="input-group-btn">
-                                                    <button class="btn btn-white dropdown-toggle" data-toggle="dropdown" type="button" aria-expanded="false" style="padding:4px 12px"><span>审核状态</span><span class="caret"></span></button>
-                                                    <ul id="order-status-menu" class="dropdown-menu min-w50" style="left:0">
-                                                        <li tmp-value="0"><a href="javascript:;">待战区审核</a></li>
-                                                        <li tmp-value="1"><a href="javascript:;">战区审核拒绝</a></li>
-                                                        <li tmp-value="2"><a href="javascript:;">待总部审核</a></li>
-                                                        <li tmp-value="3"><a href="javascript:;">总部审核拒绝</a></li>
-                                                        <li tmp-value="4"><a href="javascript:;">审核通过</a></li>
-                                                        <li tmp-value="-1"><a href="javascript:;">后台取消</a></li>
-                                                        <li tmp-value=""><a href="javascript:;">清除筛选</a></li>
-                                                        <div class="hidden status_ajax"></div>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-1" style="width: 13%;">
-                                            <select class="form-control m-b js-example-basic-multiple area-choose" name="area_id" tmp-msg="请选择区域">
-                                                <option value="">- 筛选区域 -</option>
-                                                {{foreach $area as $a}}
-                                                <option value="{{$a.id}}">{{$a.area_name}}</option>
-                                                {{/foreach}}
-                                            </select>
-                                        </div>
                                         <div class="col-sm-3">
                                             <div class="input-group m-b">
                                                 <div class="input-group-btn">
@@ -130,13 +105,12 @@
                         if(review_status==='') o_status_v = null;
                      
                         // 区域
-                        var area_id = $("select[name='area_id']").val();
                         var url = module + '/order/exportOrderExcel';
                         mask = false;
                         $.ajax({
                             async:false,
                             type:'POST',
-                            data:{start:start,end:end,search_key:search_key,search_val:search_val,review_status:review_status,area_id:area_id},
+                            data:{start:start,end:end,search_key:search_key,search_val:search_val},
                             url:url,
                             beforeSend : function(XMLHttpRequest){
                                 // 发送请求前
@@ -186,18 +160,12 @@
                    
                     // 重置
                     $("#down-order-form button[type='reset']").click(function(){
-                        $('#order-status-menu').siblings('button').find('span:first').html('审核状态');
-                        $('#order-status-menu').find('li').removeClass('active');
-                        $("#order-status-menu .status_ajax").html('<input type="text" name="review_status" value="">');
+                        
 
                         $("#down-order-form input[name='search_key']").val('');
                         $("#down-order-form input[name='search_val']").val('');
                         
                         $("#down-order-form .search-menu li").removeClass('active');
-                        
-                        // 重置区域
-                        $("#down-order-form select[name='area_id'] option:first").prop('selected','selected');
-                        $("select[name='area_id']").next().find('.select2-selection__rendered').html('- 筛选区域 -');
 
                         var start = $("#down-order-form").attr('tmp-start');
                         var end = $("#down-order-form").attr('tmp-end');
@@ -213,17 +181,6 @@
                         // 改变显示状态
                         $(this).parents('ul').find('.active').removeClass('active');
                         $(this).addClass('active');
-                        
-                        var status_value = $(this).attr('tmp-value');
-
-                        if(status_value !== ''){
-                            var s_menu = $(this).find('a').html();
-                        }else{
-                            var s_menu = '审核状态';
-                        }
-                        $(this).parents('ul').siblings('button').find('span:first').html(s_menu);
-
-                        $("#order-status-menu .status_ajax").html('<input type="text" name="review_status" value="'+status_value+'">');
                         
                         getOrderList(false);
                     });
@@ -249,13 +206,6 @@
                         return false;
                     }
 
-                    // 订单状态
-                    var review_status = $("#order-status-menu .status_ajax").find("input[name='review_status']").val();
-                    if(review_status === '') review_status = null;
-
-                    // 区域框
-                    var area_id = $("#down-order-form").find("select[name='area_id']").find('option:selected').val();
-
                     if(url==null){
                         var u = document.location.toString();
                         var current_page = u.split("#/")[1];
@@ -270,7 +220,7 @@
                         url = module + '/order/ajaxOrderList/'+current_page;
                     }
 
-                    posth(url,{start:start,end:end,search_key:search_key,search_val:search_val,review_status:review_status,area_id:area_id},function(res){
+                    posth(url,{start:start,end:end,search_key:search_key,search_val:search_val},function(res){
                         $("#ajaxOrderList").html(res);
                     });
                 }

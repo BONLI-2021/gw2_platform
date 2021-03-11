@@ -36,53 +36,26 @@
                                         <tr>
                                             <td class="active">下单时间</td>
                                             <td>{{$details['add_time']}}</td>
-                                            <td class="active">所属区域</td>
-                                            <td>{{$details['area_name']}}</td>
                                         </tr>
                                         <tr>
                                             <td class="active">订单金额</td>
                                             <td>{{$details['order_amt']}}</td>
-                                            <td class="active">审核状态</td>
-                                            <td><span class="label {{$details['reviewStatusLabel']}}">{{$details['review_status_v']}}</span></td>
                                         </tr>
                                     </tbody>
                                 </table>
+
+                                <div class="ibox">
+                                    <h3 style="padding-left: 15px">收货信息</h3>
+                                    <div class="ibox-content" style="padding-bottom: 5px;">
+                                        <p>收货人姓名：{{$details['consignee']}}</p>
+                                        <p>收货人电话：{{$details['consignee_phone']}}</p>
+                                        <p>收货人地址：{{$details['addr']}} {{$details['details']}}</p>
+                                        <p>订单备注：{{if !empty($details['remark'])}}{{$details['remark']}}{{else}}无{{/if}}</p>
+                                    </div>
+                                </div>
+
+
                             </div>    
-                        </div>
-
-                        <div class="ibox">
-                            <h3 style="padding-left: 15px">收货信息</h3>
-                            <div class="ibox-content" style="padding-bottom: 5px;">
-                                <p>收货人姓名：{{$details['consignee']}}</p>
-                                <p>收货人电话：{{$details['consignee_phone']}}</p>
-                                <p>收货人地址：{{$details['addr']}} {{$details['details']}}</p>
-                            </div>
-                        </div>
-
-                        <div class="mail-box">
-                            <table class="table table-hover table-mail mb0">
-                                <tbody>
-                                    <tr class="unread">
-                                        <td style="width:120px;padding-left: 20px;">订单备注:</td>
-                                        <td>{{if !empty($details['remark'])}}{{$details['remark']}}{{else}}无{{/if}}</td>
-                                    </tr>
-                                    {{if $details['area_type']==3}}
-                                        <tr class="unread">
-                                            <td  style="width:120px;padding-left: 20px;">战区审核意见:</td>
-                                            <td class="mail-subject">{{if !empty($details['review'])}}{{$details['review'][1]['review_comments']}}{{else}}无{{/if}}</td>
-                                        </tr>
-                                        <tr class="unread">
-                                            <td style="width:120px;padding-left: 20px;">总部审核意见:</td>
-                                            <td class="mail-subject">{{if !empty($details['review'])}}{{$details['review'][0]['review_comments']}}{{else}}无{{/if}}</td>
-                                        </tr>
-                                    {{else $details['area_type']==2}}
-                                        <tr class="unread">
-                                            <td style="width:120px;padding-left: 20px;">总部审核意见:</td>
-                                            <td class="mail-subject">{{if !empty($details['review'])}}{{$details['review'][0]['review_comments']}}{{else}}无{{/if}}</td>
-                                        </tr>
-                                    {{/if}}
-                                </tbody>
-                            </table>
                         </div>
                         
                         <div class="ibox">
@@ -109,8 +82,6 @@
                                                                 <td class="col-sm-2">单价</td>
                                                                 <td class="col-sm-2">数量</td>
                                                                 <td class="col-sm-2">小计</td>
-                                                                <td class="col-sm-2">已发数量</td>
-                                                                <td class="col-sm-2">已收数量</td>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
@@ -120,7 +91,7 @@
                                                                     <img alt="image" src="{{PIC_O_URL}}{{$g['goods_pic']}}">
                                                                 </td>
                                                                 <td>
-                                                                    {{$g['goods_name']}}<br>{{$g['spec_name']}}
+                                                                    {{$g['goods_name']}}
                                                                 </td>
                                                                 <td>
                                                                     <a class="text-danger" href="javascript:void(0);">{{$g['buy_price']}}</a>
@@ -131,50 +102,25 @@
                                                                 <td>
                                                                     <a class="text-danger" href="javascript:void(0);">{{$g['buy_num']*$g['buy_price']}}</a>
                                                                 </td>
-                                                                <td>
-                                                                    <a class="text-success" href="javascript:void(0);">{{$g['express_num']}}</a>
-                                                                </td>
-                                                                <td>
-                                                                    <a class="text-navy" href="javascript:void(0);">{{$g['receive_num']}}</a>
-                                                                </td>
                                                             </tr>
                                                             {{/foreach}}
                                                         </tbody>
                                                     </table>
+                                                    <br>
+                                                    <br>
+                                                    <h2><small>订单物流信息</small></h2>
+                                                    <p><small>快递公司：{{if !empty($s['express_no'])}}{{$s['express_com']}}{{else}}无{{/if}}</small></p>
+                                                    <p><small>快递单号：
+                                                        {{if !empty($s['express_no'])}}
+                                                            {{foreach $s['express_no'] as $v}}
+                                                                <a href="javascript:void(0);" class="text-success" style="font-size: 18px;">{{$v}}，</a>
+                                                            {{/foreach}}
+                                                        {{else}}
+                                                            无
+                                                        {{/if}}
+                                                    </small></p>
                                                 </div>
-                                            </div>
-                                        </div>
-                                        <div class="well">
-                                            <h4>订单物流信息</h4>
-                                            <p>快递单号：
-                                                {{if !empty($s['express_no'])}}
-                                                    {{foreach $s['express_no'] as $v}}
-                                                        <a href="javascript:void(0);" class="text-success" style="font-size: 18px;">{{$v}}，</a>
-                                                    {{/foreach}}
-                                                {{else}}
-                                                    无
-                                                {{/if}}
-                                            </p>
-                                            <p>收货照片：<small class="text-navy">{{if !empty($s['receive_pic'])}}点击查看大图{{/if}}</small></p>
-                                            <div class="alert">
-                                                <div class="lightBoxGallery">
-                                                {{if !empty($s['receive_pic'])}}
-                                                    {{foreach $s['receive_pic'] as $r}}
-                                                        <a href="{{PIC_O_URL}}{{$r}}" title="收货凭证" data-gallery=""><img src="{{PIC_O_URL}}{{$r}}"></a>
-                                                    {{/foreach}}
-                                                    <div id="blueimp-gallery" class="blueimp-gallery">
-                                                        <div class="slides"></div>
-                                                        <h3 class="title"></h3>
-                                                        <a class="prev"><</a>
-                                                        <a class="next">></a>
-                                                        <a class="close">×</a>
-                                                        <a class="play-pause"></a>
-                                                        <ol class="indicator"></ol>
-                                                    </div>
-                                                {{else}}
-                                                    暂未上传相关照片...
-                                                {{/if}}
-                                                </div>
+                                                <p class="text-right" style="padding-right:20px;">供应商：{{$s['vendor_name']}}</p>
                                             </div>
                                         </div>
                                         {{/foreach}}
@@ -184,6 +130,8 @@
                         </div>
                     </div>
                 </div>
+
+
             </div>
             {{include file="public/footer.html"}}
             <script type="text/javascript" src="{{$public}}/layer/layer.js"></script>
